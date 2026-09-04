@@ -1,0 +1,180 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  TEAM_MEMBER
+  MANAGER
+}
+
+enum ReportStatus {
+  DRAFT
+  SUBMITTED
+  NEEDS_CORRECTION
+  APPROVED
+}
+
+enum ReviewAction {
+  APPROVED
+  REQUESTED_CHANGES
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum TaskStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  BLOCKED
+}
+
+enum TaskType {
+  DEVELOPMENT
+  TESTING
+  MEETINGS
+  DOCUMENTATION
+  OTHER
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(TEAM_MEMBER)
+  createdAt    DateTime @default(now())
+
+  reports        Report[]
+  projectMembers ProjectMember[]
+  reviewedVersions ReportVersion[] @relation("Reviewer")
+}
+
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  reports Report[]
+  members ProjectMember[]
+}
+
+model ProjectMember {
+  id        String  @id @default(uuid())
+  projectId String
+  userId    String
+  project   Project @relation(fields: [projectId], references: [id])
+  user      User    @relation(fields: [userId], references: [id])
+
+  @@unique([projectId, userId])
+}
+
+model Report {
+  id                  String       @id @default(uuid())
+  userId              String
+  projectId           String
+  weekStart           DateTime
+  weekEnd             DateTime
+  status              ReportStatus @default(DRAFT)
+  currentVersionNumber Int         @default(0)
+  notes               String?
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+
+  user     User    @relation(fields: [userId], references: [id])
+  project  Project @relation(fields: [projectId], references: [id])
+
+  taskItems    TaskItem[]
+  plannedTasks PlannedTask[]
+  blockers     Blocker[]
+  achievements Achievement[]
+  hoursByType  HoursByType[]
+  versions     ReportVersion[]
+
+  @@unique([userId, weekStart])
+}
+
+model TaskItem {
+  id             String       @id @default(uuid())
+  reportId       String
+  taskName       String
+  priority       TaskPriority @default(MEDIUM)
+  plannedPercent Int
+  actualPercent  Int
+  status         TaskStatus   @default(NOT_STARTED)
+  timePlannedHrs Float
+  timeSpentHrs   Float
+  output         String?
+
+  report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+}
+
+model PlannedTask {
+  id          String @id @default(uuid())
+  reportId    String
+  description String
+
+  report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+}
+
+model Blocker {
+  id          String  @id @default(uuid())
+  reportId    String
+  description String
+  isKey       Boolean @default(false)
+
+  report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+}
+
+model Achievement {
+  id          String  @id @default(uuid())
+  reportId    String
+  description String
+  isKey       Boolean @default(false)
+
+  report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+}
+
+model HoursByType {
+  id       String   @id @default(uuid())
+  reportId String
+  taskType TaskType
+  hours    Float
+
+  report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+}
+
+model ReportVersion {
+  id              String        @id @default(uuid())
+  reportId        String
+  versionNumber   Int
+  contentSnapshot Json
+  submittedAt     DateTime      @default(now())
+
+  reviewAction    ReviewAction?
+  reviewComment   String?
+  reviewedAt      DateTime?
+  reviewerId      String?
+
+  report   Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  reviewer User?  @relation("Reviewer", fields: [reviewerId], references: [id])
+
+  @@unique([reportId, versionNumber])
+}

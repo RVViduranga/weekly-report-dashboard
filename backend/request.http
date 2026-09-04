@@ -1,0 +1,67 @@
+### Register a manager
+POST http://localhost:4000/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Sarah Manager",
+  "email": "manager@example.com",
+  "password": "password123",
+  "role": "MANAGER"
+}
+
+### Register a team member
+POST http://localhost:4000/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Alex Developer",
+  "email": "alex@example.com",
+  "password": "password123"
+}
+
+### Should FAIL - duplicate email (expect 409)
+POST http://localhost:4000/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Someone Else",
+  "email": "manager@example.com",
+  "password": "password123"
+}
+
+### Should FAIL - bad email + short password (expect 400)
+POST http://localhost:4000/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "X",
+  "email": "not-an-email",
+  "password": "123"
+}
+
+### Login as manager
+POST http://localhost:4000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "manager@example.com",
+  "password": "password123"
+}
+
+### Who am I? (should work after logging in above)
+GET http://localhost:4000/api/auth/me
+
+### Logout
+POST http://localhost:4000/api/auth/logout
+
+### Should FAIL after logout (expect 401)
+GET http://localhost:4000/api/auth/me
+
+### Should FAIL - wrong password (expect 401)
+POST http://localhost:4000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "manager@example.com",
+  "password": "wrongpassword"
+}
