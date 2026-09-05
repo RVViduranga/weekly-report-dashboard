@@ -65,3 +65,207 @@ Content-Type: application/json
   "email": "manager@example.com",
   "password": "wrongpassword"
 }
+
+###############################################
+# FULL REVIEW CYCLE - run these in order
+###############################################
+
+### 1. Login as manager
+POST http://localhost:4000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "manager@example.com",
+  "password": "password123"
+}
+
+### 2. Create a project
+# @name newProject
+POST http://localhost:4000/api/projects
+Content-Type: application/json
+
+{
+  "name": "Client A Portal",
+  "description": "Customer-facing dashboard"
+}
+
+### 3. Login as team member
+POST http://localhost:4000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "alex@example.com",
+  "password": "password123"
+}
+
+### 4. Create a report (expect DRAFT)
+# @name newReport
+POST http://localhost:4000/api/reports
+Content-Type: application/json
+
+{
+  "projectId": "{{newProject.response.body.project.id}}",
+  "weekStart": "2026-08-31",
+  "weekEnd": "2026-09-06",
+  "notes": "Sprint 12 wrap-up",
+  "taskItems": [
+    {
+      "taskName": "Build login page",
+      "priority": "HIGH",
+      "plannedPercent": 100,
+      "actualPercent": 90,
+      "status": "IN_PROGRESS",
+      "timePlannedHrs": 8,
+      "timeSpentHrs": 10,
+      "output": "PR #42"
+    }
+  ],
+  "plannedTasks": [
+    { "description": "Finish login page tests" }
+  ],
+  "blockers": [
+    { "description": "Waiting on design assets", "isKey": true }
+  ],
+  "achievements": [
+    { "description": "Cut page load time by 40%", "isKey": true }
+  ],
+  "hoursByType": [
+    { "taskType": "DEVELOPMENT", "hours": 24 },
+    { "taskType": "MEETINGS", "hours": 6 }
+  ]
+}
+
+### 5. Submit the report (expect SUBMITTED, version 1)
+POST http://localhost:4000/api/reports/{{newReport.response.body.report.id}}/submit
+
+### 6. Login as manager
+POST http://localhost:4000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "manager@example.com",
+  "password": "password123"
+}
+
+### 7. List all reports (manager only)
+GET http://localhost:4000/api/reports?page=1&pageSize=10
+
+### 8. Request changes (expect NEEDS_CORRECTION)
+POST http://localhost:4000/api/reports/{{newReport.response.body.report.id}}/review
+Content-Type: application/json
+
+{
+  "action": "REQUESTED_CHANGES",
+  "comment": "Please add the actual hours for the testing work."
+}
+
+### 9. Login as team member
+POST http://localhost:4000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "alex@example.com",
+  "password": "password123"
+}
+
+### 10. Edit the report after correction was requested
+PATCH http://localhost:4000/api/reports/{{newReport.response.body.report.id}}
+Content-Type: application/json
+
+{
+  "projectId": "{{newProject.response.body.project.id}}",
+  "notes": "Sprint 12 wrap-up (updated after review)",
+  "taskItems": [
+    {
+      "taskName": "Build login page",
+      "priority": "HIGH",
+      "plannedPercent": 100,
+      "actualPercent": 100,
+      "status": "COMPLETED",
+      "timePlannedHrs": 8,
+      "timeSpentHrs": 10,
+      "output": "PR #42 merged"
+    },
+    {
+      "taskName": "Write login tests",
+      "priority": "MEDIUM",
+      "plannedPercent": 100,
+      "actualPercent": 100,
+      "status": "COMPLETED",
+      "timePlannedHrs": 4,
+      "timeSpentHrs": 5,
+      "output": "12 test cases"
+    }
+  ],
+  "plannedTasks": [
+    { "description": "Start password reset flow" }
+  ],
+  "blockers": [
+    { "description": "Design assets received - resolved", "isKey": false }
+  ],
+  "achievements": [
+    { "description": "Cut page load time by 40%", "isKey": true }
+  ],
+  "hoursByType": [
+    { "taskType": "DEVELOPMENT", "hours": 24 },
+    { "taskType": "TESTING", "hours": 5 },
+    { "taskType": "MEETINGS", "hours": 6 }
+  ]
+}
+
+### 11. Resubmit (expect SUBMITTED, version 2)
+POST http://localhost:4000/api/reports/{{newReport.response.body.report.id}}/submit
+
+### 12. Login as manager
+POST http://localhost:4000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "manager@example.com",
+  "password": "password123"
+}
+
+### 13. Approve the report (expect APPROVED)
+POST http://localhost:4000/api/reports/{{newReport.response.body.report.id}}/review
+Content-Type: application/json
+
+{
+  "action": "APPROVED"
+}
+
+### 14. Version history (expect 2 versions)
+GET http://localhost:4000/api/reports/{{newReport.response.body.report.id}}/versions
+
+
+###############################################
+# RBAC TESTS - these should all be rejected
+###############################################
+
+### Login as team member
+POST http://localhost:4000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "alex@example.com",
+  "password": "password123"
+}
+
+### Team member listing all reports (expect 403)
+GET http://localhost:4000/api/reports
+
+### Team member reviewing a report (expect 403)
+POST http://localhost:4000/api/reports/{{newReport.response.body.report.id}}/review
+Content-Type: application/json
+
+{
+  "action": "APPROVED"
+}
+
+### Request changes with no comment (expect 400)
+# Log in as manager first before running this one
+POST http://localhost:4000/api/reports/{{newReport.response.body.report.id}}/review
+Content-Type: application/json
+
+{
+  "action": "REQUESTED_CHANGES"
+}
