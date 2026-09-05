@@ -86,6 +86,23 @@ export interface Report {
   hoursByType: HoursByType[];
 }
 
+export interface ReportListItem {
+  id: string;
+  userId: string;
+  projectId: string;
+  weekStart: string;
+  weekEnd: string;
+  status: ReportStatus;
+  currentVersionNumber: number;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+  user: Pick<User, "id" | "name" | "email">;
+  project: Pick<Project, "id" | "name">;
+  hoursByType: { taskType: TaskType; hours: number }[];
+  _count: { taskItems: number; blockers: number };
+}
+
 export interface ReportVersion {
   id: string;
   versionNumber: number;

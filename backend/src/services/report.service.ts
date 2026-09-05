@@ -12,6 +12,13 @@ const reportInclude = {
   hoursByType: true,
 };
 
+const reportListInclude = {
+  user: { select: { id: true, name: true, email: true } },
+  project: { select: { id: true, name: true } },
+  hoursByType: { select: { taskType: true, hours: true } },
+  _count: { select: { taskItems: true, blockers: true } },
+};
+
 type Requester = { userId: string; role: Role };
 
 type ReportContent = {
@@ -232,7 +239,7 @@ export async function listReports(
     prisma.report.count({ where }),
     prisma.report.findMany({
       where,
-      include: reportInclude,
+      include: reportListInclude,
       orderBy: [{ weekStart: "desc" }, { createdAt: "desc" }],
       skip: (query.page - 1) * query.pageSize,
       take: query.pageSize,
