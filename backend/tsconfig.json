@@ -5,12 +5,13 @@
     "moduleResolution": "node16",
     "lib": ["ES2020"],
     "outDir": "dist",
-    "rootDir": "src",
+    "rootDir": ".",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true
   },
-  "include": ["src"]
+  "include": ["src", "prisma"],
+  "exclude": ["node_modules", "dist"]
 }
