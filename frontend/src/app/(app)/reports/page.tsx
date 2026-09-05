@@ -47,7 +47,9 @@ export default function MyReportsPage() {
       .catch((err) => {
         if (active) {
           setError(
-            err instanceof ApiError ? err.message : "Could not load your reports"
+            err instanceof ApiError
+              ? err.message
+              : "Could not load your reports",
           );
         }
       })
