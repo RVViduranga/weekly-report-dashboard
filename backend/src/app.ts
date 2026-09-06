@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import authRoutes from "./routes/auth.routes";
 import projectRoutes from "./routes/project.routes";
 import reportRoutes from "./routes/report.routes";
+import userRoutes from "./routes/user.routes";
 
 export function createApp() {
   const app = express();
@@ -15,6 +16,7 @@ export function createApp() {
   app.use("/api/auth", authRoutes);
   app.use("/api/projects", projectRoutes);
   app.use("/api/reports", reportRoutes);
+  app.use("/api/users", userRoutes);
 
   app.get("/api/health", (_req, res) => {
     res.json({ status: "ok" });
