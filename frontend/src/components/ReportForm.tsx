@@ -4,6 +4,15 @@ import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api, ApiError } from "@/lib/api";
 import TaskItemsEditor from "@/components/TaskItemsEditor";
+import ReviewComment from "@/components/ReviewComment";
+import Card, { CardHeader } from "@/components/ui/Card";
+import Button from "@/components/ui/Button";
+import {
+  controlClass,
+  invalidClass,
+  Notice,
+  textareaClass,
+} from "@/components/ui/Field";
 import {
   TASK_TYPES,
   TASK_TYPE_LABELS,
@@ -25,24 +34,23 @@ interface Props {
   managerComment?: { comment: string; reviewerName: string | null } | null;
 }
 
-const inputClass =
-  "rounded-md border border-neutral-300 bg-transparent px-3 py-2 text-sm outline-none focus:border-neutral-900 dark:border-neutral-700 dark:focus:border-neutral-300";
-
-function Section({
-  title,
-  hint,
-  children,
-}: {
-  title: string;
-  hint?: string;
-  children: React.ReactNode;
-}) {
+function RemoveButton({ onClick }: { onClick: () => void }) {
   return (
-    <section className="border-t border-neutral-200 pt-6 dark:border-neutral-800">
-      <h2 className="text-base font-semibold">{title}</h2>
-      {hint && <p className="mt-0.5 mb-3 text-sm text-neutral-500">{hint}</p>}
-      <div className={hint ? "" : "mt-3"}>{children}</div>
-    </section>
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label="Remove this row"
+      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-ink-3 transition-colors hover:bg-danger-soft hover:text-danger-ink"
+    >
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path
+          d="M4 4l8 8M12 4l-8 8"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+        />
+      </svg>
+    </button>
   );
 }
 
@@ -80,35 +88,32 @@ function FlaggableList({
             value={item.description}
             onChange={(e) => update(index, { description: e.target.value })}
             placeholder={placeholder}
-            className={`${inputClass} min-w-0 flex-1`}
+            className={`${controlClass} min-w-0 flex-1`}
           />
-          <label className="flex items-center gap-1.5 text-sm text-neutral-600 dark:text-neutral-400">
+          <label className="flex items-center gap-1.5 text-sm text-ink-2">
             <input
               type="radio"
               name={radioName}
               checked={item.isKey}
               onChange={() => setKey(index)}
               disabled={item.description.trim() === ""}
+              className="accent-accent"
             />
             {keyLabel}
           </label>
-          <button
-            type="button"
-            onClick={() => remove(index)}
-            className="rounded px-2 py-1 text-xs text-neutral-500 hover:bg-neutral-100 hover:text-red-600 dark:hover:bg-neutral-800"
-          >
-            Remove
-          </button>
+          <RemoveButton onClick={() => remove(index)} />
         </div>
       ))}
 
-      <button
+      <Button
         type="button"
+        variant="secondary"
+        size="sm"
         onClick={() => onChange([...items, { description: "", isKey: false }])}
-        className="mt-1 self-start rounded-md border border-neutral-300 px-3 py-1.5 text-sm hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-800"
+        className="mt-1 self-start"
       >
         Add another
-      </button>
+      </Button>
     </div>
   );
 }
@@ -192,88 +197,89 @@ export default function ReportForm({
   }
 
   return (
-    <form onSubmit={(e) => handleSave(e, false)} className="flex flex-col gap-6">
+    <form onSubmit={(e) => handleSave(e, false)} className="flex flex-col gap-4">
       {managerComment && (
-        <div className="rounded-lg border border-amber-300 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/50">
-          <p className="text-xs font-semibold tracking-wide text-amber-800 uppercase dark:text-amber-300">
-            Changes requested
-            {managerComment.reviewerName
-              ? ` by ${managerComment.reviewerName}`
-              : ""}
-          </p>
-          <p className="mt-1.5 text-sm text-amber-900 dark:text-amber-200">
-            {managerComment.comment}
-          </p>
-        </div>
+        <ReviewComment
+          comment={managerComment.comment}
+          reviewerName={managerComment.reviewerName}
+        />
       )}
 
-      <section className="grid gap-4 sm:grid-cols-2">
-        <label className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium">Project</span>
-          <select
-            value={values.projectId}
-            onChange={(e) => set("projectId", e.target.value)}
-            className={inputClass}
-          >
-            <option value="">Select a project</option>
-            {projects.map((project) => (
-              <option key={project.id} value={project.id}>
-                {project.name}
-              </option>
-            ))}
-          </select>
-          {errors.projectId && (
-            <span className="text-xs text-red-600 dark:text-red-400">
-              {errors.projectId}
-            </span>
-          )}
-        </label>
+      <Card className="p-5">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <label className="flex flex-col gap-1.5">
+            <span className="text-sm font-medium">Project</span>
+            <select
+              value={values.projectId}
+              onChange={(e) => set("projectId", e.target.value)}
+              className={`${controlClass} ${errors.projectId ? invalidClass : ""}`}
+            >
+              <option value="">Select a project</option>
+              {projects.map((project) => (
+                <option key={project.id} value={project.id}>
+                  {project.name}
+                </option>
+              ))}
+            </select>
+            {errors.projectId && (
+              <span role="alert" className="text-xs text-danger-ink">
+                {errors.projectId}
+              </span>
+            )}
+          </label>
 
-        <label className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium">Week starting (Monday)</span>
-          <input
-            type="date"
-            value={values.weekStart}
-            disabled={mode === "edit"}
-            onChange={(e) =>
-              set("weekStart", e.target.value ? mondayOf(e.target.value) : "")
-            }
-            className={`${inputClass} disabled:opacity-60`}
-          />
-          <span className="text-xs text-neutral-500">
-            {values.weekStart
-              ? formatWeekRange(values.weekStart, addDays(values.weekStart, 6))
-              : "Pick any day in the week"}
-            {mode === "edit" && " - the week cannot be changed"}
-          </span>
-          {errors.weekStart && (
-            <span className="text-xs text-red-600 dark:text-red-400">
-              {errors.weekStart}
+          <label className="flex flex-col gap-1.5">
+            <span className="text-sm font-medium">Week starting (Monday)</span>
+            <input
+              type="date"
+              value={values.weekStart}
+              disabled={mode === "edit"}
+              onChange={(e) =>
+                set("weekStart", e.target.value ? mondayOf(e.target.value) : "")
+              }
+              className={`${controlClass} disabled:opacity-60 ${
+                errors.weekStart ? invalidClass : ""
+              }`}
+            />
+            <span className="text-xs text-ink-3">
+              {values.weekStart
+                ? formatWeekRange(values.weekStart, addDays(values.weekStart, 6))
+                : "Pick any day in the week"}
+              {mode === "edit" && " - the week cannot be changed"}
             </span>
-          )}
-        </label>
-      </section>
+            {errors.weekStart && (
+              <span role="alert" className="text-xs text-danger-ink">
+                {errors.weekStart}
+              </span>
+            )}
+          </label>
+        </div>
+      </Card>
 
-      <Section
-        title="Tasks completed"
-        hint="One row per task you worked on this week."
-      >
-        <TaskItemsEditor
-          tasks={values.taskItems}
-          onChange={(tasks) => set("taskItems", tasks)}
+      <Card>
+        <CardHeader
+          title="Tasks completed"
+          description="One row per task you worked on this week."
         />
-        {errors.taskItems && (
-          <p className="mt-2 text-xs text-red-600 dark:text-red-400">
-            {errors.taskItems}
-          </p>
-        )}
-      </Section>
+        <div className="px-5 pb-5">
+          <TaskItemsEditor
+            tasks={values.taskItems}
+            onChange={(tasks) => set("taskItems", tasks)}
+          />
+          {errors.taskItems && (
+            <p role="alert" className="mt-2 text-xs text-danger-ink">
+              {errors.taskItems}
+            </p>
+          )}
+        </div>
+      </Card>
 
-      <Section
-        title="Planned for next week"
-        hint="What you intend to pick up next."
-      >
-        <div className="flex flex-col gap-2">
+      <Card>
+        <CardHeader
+          title="Planned for next week"
+          description="What you intend to pick up next."
+        />
+        <div className="flex flex-col gap-2 px-5 pb-5">
           {values.plannedTasks.map((description, index) => (
             <div key={index} className="flex items-center gap-3">
               <input
@@ -287,63 +293,71 @@ export default function ReportForm({
                   )
                 }
                 placeholder="Next week's task"
-                className={`${inputClass} min-w-0 flex-1`}
+                className={`${controlClass} min-w-0 flex-1`}
               />
-              <button
-                type="button"
+              <RemoveButton
                 onClick={() => {
-                  const next = values.plannedTasks.filter(
-                    (_, i) => i !== index
-                  );
+                  const next = values.plannedTasks.filter((_, i) => i !== index);
                   set("plannedTasks", next.length > 0 ? next : [""]);
                 }}
-                className="rounded px-2 py-1 text-xs text-neutral-500 hover:bg-neutral-100 hover:text-red-600 dark:hover:bg-neutral-800"
-              >
-                Remove
-              </button>
+              />
             </div>
           ))}
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="sm"
             onClick={() => set("plannedTasks", [...values.plannedTasks, ""])}
-            className="mt-1 self-start rounded-md border border-neutral-300 px-3 py-1.5 text-sm hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-800"
+            className="mt-1 self-start"
           >
             Add another
-          </button>
+          </Button>
         </div>
-      </Section>
+      </Card>
 
-      <Section
-        title="Blockers and challenges"
-        hint="Flag the one that held you back the most."
-      >
-        <FlaggableList
-          items={values.blockers}
-          onChange={(items) => set("blockers", items)}
-          radioName="keyBlocker"
-          placeholder="What slowed you down?"
-          keyLabel="Key issue"
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader
+            title="Blockers and challenges"
+            description="Flag the one that held you back the most."
+          />
+          <div className="px-5 pb-5">
+            <FlaggableList
+              items={values.blockers}
+              onChange={(items) => set("blockers", items)}
+              radioName="keyBlocker"
+              placeholder="What slowed you down?"
+              keyLabel="Key issue"
+            />
+          </div>
+        </Card>
+
+        <Card>
+          <CardHeader
+            title="Achievements and highlights"
+            description="Flag the one you are most proud of."
+          />
+          <div className="px-5 pb-5">
+            <FlaggableList
+              items={values.achievements}
+              onChange={(items) => set("achievements", items)}
+              radioName="keyAchievement"
+              placeholder="What went well?"
+              keyLabel="Key achievement"
+            />
+          </div>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader
+          title="Hours by task type"
+          description="Optional, but useful for the team dashboard."
         />
-      </Section>
-
-      <Section
-        title="Achievements and highlights"
-        hint="Flag the one you are most proud of."
-      >
-        <FlaggableList
-          items={values.achievements}
-          onChange={(items) => set("achievements", items)}
-          radioName="keyAchievement"
-          placeholder="What went well?"
-          keyLabel="Key achievement"
-        />
-      </Section>
-
-      <Section title="Hours by task type" hint="Optional, but useful for the team dashboard.">
-        <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        <div className="grid gap-3 px-5 pb-5 sm:grid-cols-3 lg:grid-cols-5">
           {TASK_TYPES.map((taskType) => (
             <label key={taskType} className="flex flex-col gap-1.5">
-              <span className="text-sm text-neutral-600 dark:text-neutral-400">
+              <span className="text-xs font-medium text-ink-3">
                 {TASK_TYPE_LABELS[taskType]}
               </span>
               <input
@@ -354,54 +368,54 @@ export default function ReportForm({
                 onChange={(e) =>
                   set("hours", { ...values.hours, [taskType]: e.target.value })
                 }
-                className={inputClass}
+                className={`${controlClass} tabular-nums`}
               />
             </label>
           ))}
         </div>
-      </Section>
+      </Card>
 
-      <Section title="Notes or links" hint="Anything else worth recording.">
-        <textarea
-          value={values.notes}
-          onChange={(e) => set("notes", e.target.value)}
-          rows={3}
-          placeholder="Links, context, anything the reviewer should know"
-          className={`${inputClass} w-full`}
+      <Card>
+        <CardHeader
+          title="Notes or links"
+          description="Anything else worth recording."
         />
-      </Section>
+        <div className="px-5 pb-5">
+          <textarea
+            value={values.notes}
+            onChange={(e) => set("notes", e.target.value)}
+            rows={3}
+            placeholder="Links, context, anything the reviewer should know"
+            className={textareaClass}
+          />
+        </div>
+      </Card>
 
-      {formError && (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
-          {formError}
-        </p>
-      )}
+      {formError && <Notice>{formError}</Notice>}
 
-      <div className="flex flex-wrap gap-3 border-t border-neutral-200 pt-6 dark:border-neutral-800">
-        <button
-          type="submit"
-          disabled={busy !== null}
-          className="rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium disabled:opacity-50 dark:border-neutral-700"
-        >
-          {busy === "draft" ? "Saving..." : "Save draft"}
-        </button>
+      {/* The form is long, so its actions follow you down the page. */}
+      <div className="sticky bottom-0 -mx-4 mt-2 flex flex-wrap items-center gap-3 border-t border-line bg-surface/85 px-4 py-3 backdrop-blur-md sm:-mx-6 sm:px-6">
+        <Button type="submit" variant="secondary" busy={busy === "draft"}>
+          {busy === "draft" ? "Saving" : "Save draft"}
+        </Button>
 
-        <button
+        <Button
           type="button"
           onClick={(e) => handleSave(e, true)}
+          busy={busy === "submit"}
           disabled={busy !== null}
-          className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-neutral-100 dark:text-neutral-900"
         >
-          {busy === "submit" ? "Submitting..." : "Submit for review"}
-        </button>
+          {busy === "submit" ? "Submitting" : "Submit for review"}
+        </Button>
 
-        <button
+        <Button
           type="button"
+          variant="ghost"
           onClick={() => router.back()}
-          className="rounded-md px-4 py-2 text-sm text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+          className="ml-auto"
         >
           Cancel
-        </button>
+        </Button>
       </div>
     </form>
   );

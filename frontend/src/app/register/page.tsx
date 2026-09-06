@@ -5,6 +5,12 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { ApiError } from "@/lib/api";
+import Button from "@/components/ui/Button";
+import Field, {
+  controlClass,
+  invalidClass,
+  Notice,
+} from "@/components/ui/Field";
 import type { Role } from "@/types";
 
 export default function RegisterPage() {
@@ -56,95 +62,82 @@ export default function RegisterPage() {
     }
   }
 
-  const inputClass =
-    "rounded-md border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-900 dark:border-neutral-700 dark:focus:border-neutral-300";
+  const fieldClass = (field: string) =>
+    `${controlClass} ${fieldErrors[field] ? invalidClass : ""}`;
 
   return (
-    <main className="flex flex-1 items-center justify-center p-6">
+    <main className="flex flex-1 items-center justify-center px-4 py-10">
       <div className="w-full max-w-sm">
-        <h1 className="text-2xl font-semibold">Create an account</h1>
-        <p className="mt-1 mb-8 text-sm text-neutral-500">
-          Join your team and start filing weekly reports.
-        </p>
+        <div className="mb-7 text-center">
+          <h1 className="text-xl font-semibold tracking-tight">
+            Create an account
+          </h1>
+          <p className="mt-1 text-sm text-ink-2">
+            Join your team and start filing weekly reports.
+          </p>
+        </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
-          <label className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium">Full name</span>
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              autoComplete="name"
-              className={inputClass}
-            />
-            {fieldErrors.name && (
-              <span className="text-xs text-red-600 dark:text-red-400">
-                {fieldErrors.name}
-              </span>
-            )}
-          </label>
+        <div className="rounded-xl border border-line bg-surface p-6 shadow-card">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
+            <Field label="Full name" error={fieldErrors.name}>
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                autoComplete="name"
+                className={fieldClass("name")}
+              />
+            </Field>
 
-          <label className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium">Email</span>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              autoComplete="email"
-              className={inputClass}
-            />
-            {fieldErrors.email && (
-              <span className="text-xs text-red-600 dark:text-red-400">
-                {fieldErrors.email}
-              </span>
-            )}
-          </label>
+            <Field label="Email" error={fieldErrors.email}>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
+                placeholder="you@company.com"
+                className={fieldClass("email")}
+              />
+            </Field>
 
-          <label className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium">Password</span>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="new-password"
-              className={inputClass}
-            />
-            {fieldErrors.password && (
-              <span className="text-xs text-red-600 dark:text-red-400">
-                {fieldErrors.password}
-              </span>
-            )}
-          </label>
-
-          <label className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium">Role</span>
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value as Role)}
-              className={inputClass}
+            <Field
+              label="Password"
+              error={fieldErrors.password}
+              hint="At least 8 characters."
             >
-              <option value="TEAM_MEMBER">Team member</option>
-              <option value="MANAGER">Manager</option>
-            </select>
-          </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
+                className={fieldClass("password")}
+              />
+            </Field>
 
-          {error && (
-            <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
-              {error}
-            </p>
-          )}
+            <Field label="Role">
+              <select
+                value={role}
+                onChange={(e) => setRole(e.target.value as Role)}
+                className={controlClass}
+              >
+                <option value="TEAM_MEMBER">Team member</option>
+                <option value="MANAGER">Manager</option>
+              </select>
+            </Field>
 
-          <button
-            type="submit"
-            disabled={submitting}
-            className="mt-2 rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-neutral-100 dark:text-neutral-900"
-          >
-            {submitting ? "Creating account..." : "Create account"}
-          </button>
-        </form>
+            {error && <Notice>{error}</Notice>}
 
-        <p className="mt-6 text-sm text-neutral-500">
+            <Button type="submit" busy={submitting} className="mt-1 w-full">
+              {submitting ? "Creating account" : "Create account"}
+            </Button>
+          </form>
+        </div>
+
+        <p className="mt-6 text-center text-sm text-ink-3">
           Already have an account?{" "}
-          <Link href="/login" className="underline">
+          <Link
+            href="/login"
+            className="font-medium text-accent-ink underline underline-offset-2"
+          >
             Sign in
           </Link>
         </p>

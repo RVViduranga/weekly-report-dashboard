@@ -5,11 +5,24 @@ import Link from "next/link";
 import { api, ApiError } from "@/lib/api";
 import StatusBadge from "@/components/StatusBadge";
 import { formatWeekRange } from "@/lib/format";
-import type { Pagination, ReportListItem, ReportStatus } from "@/types";
+import PageHeader from "@/components/ui/PageHeader";
+import { buttonClasses } from "@/components/ui/Button";
+import { controlClassSm, Notice } from "@/components/ui/Field";
+import EmptyState from "@/components/ui/EmptyState";
+import { SkeletonTable } from "@/components/ui/Skeleton";
+import {
+  Pagination,
+  TableShell,
+  tdClass,
+  theadClass,
+  thClass,
+  trClass,
+} from "@/components/ui/Table";
+import type { Pagination as PageInfo, ReportListItem, ReportStatus } from "@/types";
 
 interface ReportListResponse {
   reports: ReportListItem[];
-  pagination: Pagination;
+  pagination: PageInfo;
 }
 
 const STATUS_FILTERS: { value: ReportStatus | ""; label: string }[] = [
@@ -74,32 +87,26 @@ export default function MyReportsPage() {
 
   return (
     <div>
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold">My reports</h1>
-          <p className="mt-1 text-sm text-neutral-500">
-            Every weekly report you have filed, newest first.
-          </p>
-        </div>
+      <PageHeader
+        title="My reports"
+        description="Every weekly report you have filed, newest first."
+        actions={
+          <Link href="/reports/new" className={buttonClasses()}>
+            New report
+          </Link>
+        }
+      />
 
-        <Link
-          href="/reports/new"
-          className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white dark:bg-neutral-100 dark:text-neutral-900"
-        >
-          New report
-        </Link>
-      </div>
-
-      <div className="mt-6 flex flex-wrap items-center gap-3">
+      <div className="mb-4 flex flex-wrap items-center gap-3">
         <label className="flex items-center gap-2 text-sm">
-          <span className="text-neutral-500">Status</span>
+          <span className="text-ink-3">Status</span>
           <select
             value={status}
             onChange={(e) => {
               setStatus(e.target.value as ReportStatus | "");
               setPage(1);
             }}
-            className="rounded-md border border-neutral-300 px-2.5 py-1.5 text-sm dark:border-neutral-700"
+            className={controlClassSm}
           >
             {STATUS_FILTERS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -110,114 +117,96 @@ export default function MyReportsPage() {
         </label>
 
         {data && (
-          <span className="text-sm text-neutral-500">
+          <span className="text-sm text-ink-3">
             {data.pagination.total} report
             {data.pagination.total === 1 ? "" : "s"}
           </span>
         )}
       </div>
 
-      {loading && (
-        <p className="mt-8 text-sm text-neutral-500">Loading reports...</p>
-      )}
+      {loading && <SkeletonTable rows={5} columns={5} />}
 
-      {error && (
-        <p className="mt-8 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
-          {error}
-        </p>
-      )}
+      {!loading && error && <Notice>{error}</Notice>}
 
       {!loading && !error && data && data.reports.length === 0 && (
-        <div className="mt-8 rounded-lg border border-dashed border-neutral-300 p-10 text-center dark:border-neutral-700">
-          <p className="text-sm text-neutral-500">
-            No reports here yet.{" "}
-            <Link href="/reports/new" className="underline">
-              Create your first one
-            </Link>
-            .
-          </p>
-        </div>
+        <EmptyState
+          title={
+            status ? "No reports with that status" : "No reports here yet"
+          }
+          description={
+            status
+              ? "Try a different status, or clear the filter to see everything."
+              : "Your weekly reports will show up here once you file the first one."
+          }
+          icon={status ? "search" : "empty"}
+          action={
+            !status && (
+              <Link href="/reports/new" className={buttonClasses()}>
+                Create your first report
+              </Link>
+            )
+          }
+        />
       )}
 
       {!loading && !error && data && data.reports.length > 0 && (
         <>
-          <div className="mt-6 overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
-            <table className="w-full text-sm">
-              <thead className="bg-neutral-50 text-left text-xs tracking-wide text-neutral-500 uppercase dark:bg-neutral-900">
-                <tr>
-                  <th className="px-4 py-3 font-medium">Week</th>
-                  <th className="px-4 py-3 font-medium">Project</th>
-                  <th className="px-4 py-3 font-medium">Status</th>
-                  <th className="px-4 py-3 text-right font-medium">Tasks</th>
-                  <th className="px-4 py-3 text-right font-medium">Hours</th>
-                  <th className="px-4 py-3" />
-                </tr>
-              </thead>
-              <tbody>
-                {data.reports.map((report) => (
-                  <tr
-                    key={report.id}
-                    className="border-t border-neutral-200 dark:border-neutral-800"
-                  >
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      {formatWeekRange(report.weekStart, report.weekEnd)}
-                    </td>
-                    <td className="px-4 py-3">{report.project.name}</td>
-                    <td className="px-4 py-3">
-                      <StatusBadge status={report.status} />
-                    </td>
-                    <td className="px-4 py-3 text-right tabular-nums">
-                      {report._count.taskItems}
-                    </td>
-                    <td className="px-4 py-3 text-right tabular-nums">
-                      {totalHours(report)}
-                    </td>
-                    <td className="px-4 py-3 text-right whitespace-nowrap">
+          <TableShell>
+            <thead className={theadClass}>
+              <tr>
+                <th className={thClass}>Week</th>
+                <th className={thClass}>Project</th>
+                <th className={thClass}>Status</th>
+                <th className={`${thClass} text-right`}>Tasks</th>
+                <th className={`${thClass} text-right`}>Hours</th>
+                <th className={thClass} />
+              </tr>
+            </thead>
+            <tbody>
+              {data.reports.map((report) => (
+                <tr key={report.id} className={trClass}>
+                  <td className={`${tdClass} font-medium whitespace-nowrap`}>
+                    {formatWeekRange(report.weekStart, report.weekEnd)}
+                  </td>
+                  <td className={`${tdClass} text-ink-2`}>
+                    {report.project.name}
+                  </td>
+                  <td className={tdClass}>
+                    <StatusBadge status={report.status} />
+                  </td>
+                  <td className={`${tdClass} text-right tabular-nums`}>
+                    {report._count.taskItems}
+                  </td>
+                  <td className={`${tdClass} text-right tabular-nums`}>
+                    {totalHours(report)}
+                  </td>
+                  <td className={`${tdClass} text-right whitespace-nowrap`}>
+                    <Link
+                      href={`/reports/${report.id}`}
+                      className="font-medium text-accent-ink underline-offset-2 hover:underline"
+                    >
+                      View
+                    </Link>
+                    {(report.status === "DRAFT" ||
+                      report.status === "NEEDS_CORRECTION") && (
                       <Link
-                        href={`/reports/${report.id}`}
-                        className="underline underline-offset-2"
+                        href={`/reports/${report.id}/edit`}
+                        className="ml-4 font-medium text-accent-ink underline-offset-2 hover:underline"
                       >
-                        View
+                        Edit
                       </Link>
-                      {(report.status === "DRAFT" ||
-                        report.status === "NEEDS_CORRECTION") && (
-                        <Link
-                          href={`/reports/${report.id}/edit`}
-                          className="ml-3 underline underline-offset-2"
-                        >
-                          Edit
-                        </Link>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </TableShell>
 
-          {data.pagination.totalPages > 1 && (
-            <div className="mt-4 flex items-center justify-between gap-4">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page <= 1}
-                className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm disabled:opacity-40 dark:border-neutral-700"
-              >
-                Previous
-              </button>
-
-              <span className="text-sm text-neutral-500">
-                Page {data.pagination.page} of {data.pagination.totalPages}
-              </span>
-
-              <button
-                onClick={() => setPage((p) => p + 1)}
-                disabled={page >= data.pagination.totalPages}
-                className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm disabled:opacity-40 dark:border-neutral-700"
-              >
-                Next
-              </button>
-            </div>
-          )}
+          <Pagination
+            page={data.pagination.page}
+            totalPages={data.pagination.totalPages}
+            onChange={setPage}
+          />
         </>
       )}
     </div>

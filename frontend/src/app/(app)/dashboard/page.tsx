@@ -20,6 +20,11 @@ import { useAuth } from "@/context/AuthContext";
 import { useChartColors } from "@/lib/chartColors";
 import { formatDateTime, formatWeekRange } from "@/lib/format";
 import { TASK_TYPE_LABELS } from "@/lib/reportForm";
+import Card, { CardHeader } from "@/components/ui/Card";
+import PageHeader from "@/components/ui/PageHeader";
+import { buttonClasses } from "@/components/ui/Button";
+import { Notice } from "@/components/ui/Field";
+import Skeleton, { SkeletonCard } from "@/components/ui/Skeleton";
 import type { ReportStatus, TaskType } from "@/types";
 
 interface DashboardData {
@@ -81,20 +86,80 @@ function shortWeek(iso: string): string {
   });
 }
 
+/** The Monday-to-Sunday window a member is being asked to report on. */
+function currentWeek(): { start: string; end: string } {
+  const now = new Date();
+  const monday = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
+  );
+  monday.setUTCDate(monday.getUTCDate() - ((monday.getUTCDay() + 6) % 7));
+
+  const sunday = new Date(monday);
+  sunday.setUTCDate(sunday.getUTCDate() + 6);
+
+  return { start: monday.toISOString(), end: sunday.toISOString() };
+}
+
+interface Segment {
+  label: string;
+  value: number;
+  className: string;
+}
+
+/**
+ * A headline number with the shape of the data underneath it - a filled bar is
+ * quicker to read than a second sentence.
+ */
 function StatTile({
   label,
   value,
   hint,
+  segments,
+  emphasis = false,
 }: {
   label: string;
   value: string | number;
   hint?: string;
+  segments?: Segment[];
+  emphasis?: boolean;
 }) {
+  const total = segments?.reduce((sum, s) => sum + s.value, 0) ?? 0;
+
   return (
-    <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
-      <p className="text-xs text-neutral-500">{label}</p>
-      <p className="mt-1 text-3xl font-semibold tabular-nums">{value}</p>
-      {hint && <p className="mt-0.5 text-xs text-neutral-500">{hint}</p>}
+    <div className="rounded-xl border border-line bg-surface p-4 shadow-card">
+      <p className="text-xs font-medium tracking-wide text-ink-3 uppercase">
+        {label}
+      </p>
+      <p
+        className={`mt-2 text-3xl font-semibold tracking-tight tabular-nums ${
+          emphasis ? "text-accent-ink" : ""
+        }`}
+      >
+        {value}
+      </p>
+
+      {segments && total > 0 && (
+        <div
+          role="img"
+          aria-label={segments
+            .filter((s) => s.value > 0)
+            .map((s) => `${s.value} ${s.label}`)
+            .join(", ")}
+          className="mt-3 flex h-1.5 gap-0.5 overflow-hidden rounded-full"
+        >
+          {segments
+            .filter((segment) => segment.value > 0)
+            .map((segment) => (
+              <span
+                key={segment.label}
+                className={`h-full rounded-full ${segment.className}`}
+                style={{ width: `${(segment.value / total) * 100}%` }}
+              />
+            ))}
+        </div>
+      )}
+
+      {hint && <p className="mt-2 text-xs text-ink-3">{hint}</p>}
     </div>
   );
 }
@@ -109,11 +174,41 @@ function ChartCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
-      <h2 className="text-sm font-semibold">{title}</h2>
-      {hint && <p className="mt-0.5 text-xs text-neutral-500">{hint}</p>}
-      <div className="mt-4 h-64">{children}</div>
-    </section>
+    <Card>
+      <CardHeader title={title} description={hint} />
+      <div className="h-64 px-2 pb-4">{children}</div>
+    </Card>
+  );
+}
+
+function DashboardSkeleton() {
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="pb-2">
+        <Skeleton className="h-3 w-36" />
+        <Skeleton className="mt-3 h-7 w-48" />
+        <Skeleton className="mt-2 h-4 w-80" />
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <SkeletonCard key={i} />
+        ))}
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div
+            key={i}
+            className="rounded-xl border border-line bg-surface p-5 shadow-card"
+          >
+            <Skeleton className="h-3.5 w-40" />
+            <Skeleton className="mt-2 h-3 w-56" />
+            <Skeleton className="mt-5 h-52 w-full" />
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -162,42 +257,53 @@ export default function DashboardPage() {
   };
 
   if (!isManager) {
+    const week = currentWeek();
+
     return (
       <div>
-        <h1 className="text-2xl font-semibold">Welcome back, {user?.name}</h1>
-        <p className="mt-1 text-sm text-neutral-500">
-          File this week&apos;s report, or look back at what you have submitted
-          before.
-        </p>
+        <PageHeader
+          eyebrow={`Week of ${formatWeekRange(week.start, week.end)}`}
+          title={`Welcome back, ${user?.name ?? ""}`}
+          description="File this week's report, or look back at what you have submitted before."
+        />
 
-        <div className="mt-6 flex flex-wrap gap-3">
-          <Link
-            href="/reports/new"
-            className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white dark:bg-neutral-100 dark:text-neutral-900"
-          >
-            Start this week&apos;s report
-          </Link>
-          <Link
-            href="/reports"
-            className="rounded-md border border-neutral-300 px-4 py-2 text-sm dark:border-neutral-700"
-          >
-            My reports
-          </Link>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Card className="flex flex-col p-5">
+            <h2 className="text-sm font-semibold">This week</h2>
+            <p className="mt-1 flex-1 text-sm text-ink-2">
+              Start the report while the week is still fresh. Save it as a draft
+              and come back to it before you submit.
+            </p>
+            <Link
+              href="/reports/new"
+              className={buttonClasses("primary", "md", "mt-5 self-start")}
+            >
+              Start this week&apos;s report
+            </Link>
+          </Card>
+
+          <Card className="flex flex-col p-5">
+            <h2 className="text-sm font-semibold">Your history</h2>
+            <p className="mt-1 flex-1 text-sm text-ink-2">
+              Every report you have filed, the reviewer&apos;s comments, and each
+              version you sent.
+            </p>
+            <Link
+              href="/reports"
+              className={buttonClasses("secondary", "md", "mt-5 self-start")}
+            >
+              My reports
+            </Link>
+          </Card>
         </div>
       </div>
     );
   }
 
-  if (loading) {
-    return <p className="text-sm text-neutral-500">Loading dashboard...</p>;
-  }
+  if (loading) return <DashboardSkeleton />;
 
   if (error || !data) {
-    return (
-      <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
-        {error ?? "No dashboard data"}
-      </p>
-    );
+    return <Notice>{error ?? "No dashboard data"}</Notice>;
   }
 
   const { summary } = data;
@@ -212,17 +318,29 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <header>
-        <h1 className="text-2xl font-semibold">Team dashboard</h1>
-        <p className="mt-1 text-sm text-neutral-500">
-          Week of {formatWeekRange(data.week.start, data.week.end)}
-        </p>
-      </header>
+      <PageHeader
+        eyebrow={`Week of ${formatWeekRange(data.week.start, data.week.end)}`}
+        title="Team dashboard"
+        description="How the team is tracking this week, and where the work actually went."
+        actions={
+          <Link href="/team" className={buttonClasses("secondary")}>
+            Review reports
+          </Link>
+        }
+      />
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatTile
           label="Submitted this week"
           value={`${summary.submittedThisWeek} / ${summary.teamSize}`}
+          segments={[
+            {
+              label: "filed",
+              value: summary.submittedThisWeek,
+              className: "bg-accent",
+            },
+            { label: "not filed", value: summary.pending, className: "bg-line" },
+          ]}
           hint={
             summary.pending > 0
               ? `${summary.pending} still pending`
@@ -232,6 +350,12 @@ export default function DashboardPage() {
         <StatTile
           label="Compliance rate"
           value={`${summary.complianceRate}%`}
+          emphasis
+          segments={[
+            { label: "on time", value: summary.onTime, className: "bg-ok-ink" },
+            { label: "late", value: summary.late, className: "bg-warn-ink" },
+            { label: "pending", value: summary.pending, className: "bg-line" },
+          ]}
           hint={complianceHint}
         />
         <StatTile
@@ -416,20 +540,25 @@ export default function DashboardPage() {
         </ChartCard>
       </div>
 
-      <section className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
-        <h2 className="text-sm font-semibold">Recent activity</h2>
-        <p className="mt-0.5 text-xs text-neutral-500">
-          Submissions and review decisions, newest first
-        </p>
+      <Card>
+        <CardHeader
+          title="Recent activity"
+          description="Submissions and review decisions, newest first"
+        />
 
-        <ul className="mt-4 flex flex-col gap-3">
-          {data.activity.map((item) => (
-            <li
-              key={item.id}
-              className="flex flex-wrap items-baseline gap-x-2 gap-y-1 border-t border-neutral-200 pt-3 text-sm first:border-0 first:pt-0 dark:border-neutral-800"
-            >
+        <ol className="px-5 pb-5">
+          {data.activity.map((item, index) => (
+            <li key={item.id} className="relative flex gap-3 pb-5 last:pb-0">
+              {index < data.activity.length - 1 && (
+                <span
+                  aria-hidden="true"
+                  className="absolute top-4 bottom-0 left-[3.5px] w-px bg-line"
+                />
+              )}
+
               <span
-                className="inline-block h-2 w-2 shrink-0 self-center rounded-full"
+                aria-hidden="true"
+                className="mt-1.5 h-2 w-2 shrink-0 rounded-full ring-4 ring-surface"
                 style={{
                   backgroundColor:
                     item.kind === "APPROVED"
@@ -439,39 +568,46 @@ export default function DashboardPage() {
                         : colors.SUBMITTED,
                 }}
               />
-              <span>
-                <span className="font-medium">
-                  {item.kind === "SUBMITTED" ? item.userName : item.actorName}
-                </span>{" "}
-                {ACTIVITY_LABELS[item.kind]}{" "}
-                {item.kind !== "SUBMITTED" && (
-                  <>
-                    <span className="font-medium">{item.userName}</span>
-                    &apos;s{" "}
-                  </>
-                )}
-                <Link
-                  href={`/reports/${item.reportId}`}
-                  className="underline underline-offset-2"
-                >
-                  {shortWeek(item.weekStart.slice(0, 10))} report
-                </Link>{" "}
-                <span className="text-neutral-500">
-                  ({item.projectName}, v{item.versionNumber})
-                </span>
-              </span>
-              <span className="ml-auto text-xs whitespace-nowrap text-neutral-500">
-                {formatDateTime(item.at)}
-              </span>
-              {item.comment && (
-                <p className="w-full text-xs text-neutral-500">
-                  &ldquo;{item.comment}&rdquo;
+
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-baseline gap-x-2">
+                  <p className="text-sm">
+                    <span className="font-medium">
+                      {item.kind === "SUBMITTED" ? item.userName : item.actorName}
+                    </span>{" "}
+                    {ACTIVITY_LABELS[item.kind]}{" "}
+                    {item.kind !== "SUBMITTED" && (
+                      <>
+                        <span className="font-medium">{item.userName}</span>
+                        &apos;s{" "}
+                      </>
+                    )}
+                    <Link
+                      href={`/reports/${item.reportId}`}
+                      className="font-medium text-accent-ink underline-offset-2 hover:underline"
+                    >
+                      {shortWeek(item.weekStart.slice(0, 10))} report
+                    </Link>
+                  </p>
+                  <span className="ml-auto text-xs whitespace-nowrap text-ink-3">
+                    {formatDateTime(item.at)}
+                  </span>
+                </div>
+
+                <p className="mt-0.5 text-xs text-ink-3">
+                  {item.projectName} · version {item.versionNumber}
                 </p>
-              )}
+
+                {item.comment && (
+                  <p className="mt-2 rounded-md bg-surface-muted px-3 py-2 text-xs text-ink-2">
+                    &ldquo;{item.comment}&rdquo;
+                  </p>
+                )}
+              </div>
             </li>
           ))}
-        </ul>
-      </section>
+        </ol>
+      </Card>
     </div>
   );
 }

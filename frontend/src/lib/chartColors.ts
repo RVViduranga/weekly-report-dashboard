@@ -3,34 +3,39 @@
 import { useSyncExternalStore } from "react";
 
 /**
- * Palette validated for colour-vision deficiency and 3:1 contrast against both
- * the light and the dark chart surface. Do not swap individual hues without
- * re-checking the set - the separations only hold as a group.
+ * Two palettes doing two different jobs.
+ *
+ * `line` is the single-series colour, and it is the interface accent, so a
+ * chart with one measure reads as part of the page rather than a guest on it.
+ * The four status colours are categorical and semantic - green approved, amber
+ * sent back - and they are checked as a set for colour-vision deficiency and
+ * for 3:1 contrast against their own surface. Do not swap one hue on its own:
+ * the separations only hold as a group, in the order they are stacked.
  */
 const LIGHT = {
-  line: "#2a78d6",
-  APPROVED: "#008300",
-  SUBMITTED: "#2a78d6",
-  NEEDS_CORRECTION: "#eb6834",
-  DRAFT: "#4a3aa7",
-  grid: "#e5e5e5",
-  axis: "#737373",
+  line: "#4f46e5",
+  APPROVED: "#177a45",
+  SUBMITTED: "#2f6fe0",
+  NEEDS_CORRECTION: "#c2620a",
+  DRAFT: "#8250d6",
+  grid: "#e4e4e7",
+  axis: "#8b8b93",
   tooltipBg: "#ffffff",
-  tooltipBorder: "#d4d4d4",
-  tooltipText: "#171717",
+  tooltipBorder: "#e4e4e7",
+  tooltipText: "#18181b",
 };
 
 const DARK = {
-  line: "#3987e5",
+  line: "#818cf8",
   APPROVED: "#008300",
   SUBMITTED: "#3987e5",
   NEEDS_CORRECTION: "#d95926",
   DRAFT: "#9085e9",
-  grid: "#262626",
-  axis: "#a3a3a3",
-  tooltipBg: "#171717",
-  tooltipBorder: "#404040",
-  tooltipText: "#ededed",
+  grid: "#27272d",
+  axis: "#71717a",
+  tooltipBg: "#1a1a1f",
+  tooltipBorder: "#27272d",
+  tooltipText: "#ededf0",
 };
 
 export type ChartColors = typeof LIGHT;

@@ -1,18 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import { api, ApiError } from "@/lib/api";
 import ReportDetail from "@/components/ReportDetail";
+import ReviewComment from "@/components/ReviewComment";
 import VersionHistory from "@/components/VersionHistory";
 import { useAuth } from "@/context/AuthContext";
+import Card, { CardHeader } from "@/components/ui/Card";
+import Button, { buttonClasses } from "@/components/ui/Button";
+import { BackLink } from "@/components/ui/PageHeader";
+import { Notice } from "@/components/ui/Field";
+import Skeleton from "@/components/ui/Skeleton";
 import type { Report, ReportVersion } from "@/types";
 
 export default function ReportDetailPage() {
   const params = useParams<{ id: string }>();
   const reportId = params.id;
-  const router = useRouter();
   const { user } = useAuth();
 
   const [report, setReport] = useState<Report | null>(null);
@@ -70,18 +75,25 @@ export default function ReportDetailPage() {
   }
 
   if (loading) {
-    return <p className="text-sm text-neutral-500">Loading report...</p>;
+    return (
+      <div className="flex flex-col gap-4">
+        <Skeleton className="h-4 w-24" />
+        <Skeleton className="h-8 w-64" />
+        <Skeleton className="h-4 w-48" />
+        <Skeleton className="mt-2 h-64 w-full rounded-xl" />
+        <div className="grid gap-4 md:grid-cols-2">
+          <Skeleton className="h-40 w-full rounded-xl" />
+          <Skeleton className="h-40 w-full rounded-xl" />
+        </div>
+      </div>
+    );
   }
 
   if (error && !report) {
     return (
       <div>
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
-          {error}
-        </p>
-        <Link href="/reports" className="mt-4 inline-block text-sm underline">
-          Back to my reports
-        </Link>
+        <BackLink href="/reports">Back to my reports</BackLink>
+        <Notice>{error}</Notice>
       </div>
     );
   }
@@ -99,87 +111,70 @@ export default function ReportDetailPage() {
   );
 
   return (
-    <div className="flex flex-col gap-6">
+    <div>
       <div className="flex flex-wrap items-center gap-3">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="text-sm text-neutral-500 underline underline-offset-2"
-        >
-          Back
-        </button>
+        <BackLink href={isManager && !isOwner ? "/team" : "/reports"}>
+          {isManager && !isOwner ? "Back to team reports" : "Back to my reports"}
+        </BackLink>
 
-        <div className="ml-auto flex flex-wrap gap-2">
+        <div className="mb-5 ml-auto flex flex-wrap gap-2">
           {editable && (
             <>
               <Link
                 href={`/reports/${reportId}/edit`}
-                className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm dark:border-neutral-700"
+                className={buttonClasses("secondary")}
               >
                 Edit
               </Link>
-              <button
-                type="button"
-                onClick={handleSubmit}
-                disabled={submitting}
-                className="rounded-md bg-neutral-900 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50 dark:bg-neutral-100 dark:text-neutral-900"
-              >
-                {submitting ? "Submitting..." : "Submit for review"}
-              </button>
+              <Button onClick={handleSubmit} busy={submitting}>
+                {submitting ? "Submitting" : "Submit for review"}
+              </Button>
             </>
           )}
 
           {isManager && report.status === "SUBMITTED" && (
-            <Link
-              href={`/team/${reportId}`}
-              className="rounded-md bg-neutral-900 px-3 py-1.5 text-sm font-medium text-white dark:bg-neutral-100 dark:text-neutral-900"
-            >
+            <Link href={`/team/${reportId}`} className={buttonClasses()}>
               Review this report
             </Link>
           )}
         </div>
       </div>
 
-      {report.status === "NEEDS_CORRECTION" && latestReview?.reviewComment && (
-        <div className="rounded-lg border border-amber-300 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/50">
-          <p className="text-xs font-semibold tracking-wide text-amber-800 uppercase dark:text-amber-300">
-            Changes requested
-            {latestReview.reviewer ? ` by ${latestReview.reviewer.name}` : ""}
-          </p>
-          <p className="mt-1.5 text-sm text-amber-900 dark:text-amber-200">
-            {latestReview.reviewComment}
-          </p>
-        </div>
-      )}
-
-      {error && (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
-          {error}
-        </p>
-      )}
-
-      <ReportDetail report={report} />
-
-      <section className="border-t border-neutral-200 pt-5 dark:border-neutral-800">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-sm font-semibold tracking-wide text-neutral-500 uppercase">
-            Version history ({versions.length})
-          </h2>
-          <button
-            type="button"
-            onClick={() => setShowHistory((open) => !open)}
-            className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-800"
-          >
-            {showHistory ? "Hide history" : "Show history"}
-          </button>
-        </div>
-
-        {showHistory && (
-          <div className="mt-4">
-            <VersionHistory versions={versions} />
-          </div>
+      <div className="flex flex-col gap-4">
+        {report.status === "NEEDS_CORRECTION" && latestReview?.reviewComment && (
+          <ReviewComment
+            comment={latestReview.reviewComment}
+            reviewerName={latestReview.reviewer?.name}
+          />
         )}
-      </section>
+
+        {error && <Notice>{error}</Notice>}
+
+        <ReportDetail report={report} />
+
+        <Card>
+          <CardHeader
+            title={`Version history (${versions.length})`}
+            description="Every submission, and the decision made on it"
+            action={
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setShowHistory((open) => !open)}
+                aria-expanded={showHistory}
+              >
+                {showHistory ? "Hide history" : "Show history"}
+              </Button>
+            }
+          />
+
+          {showHistory && (
+            <div className="border-t border-line px-5 py-5">
+              <VersionHistory versions={versions} />
+            </div>
+          )}
+        </Card>
+      </div>
     </div>
   );
 }

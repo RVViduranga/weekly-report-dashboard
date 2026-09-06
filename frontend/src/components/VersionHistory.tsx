@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import Button from "@/components/ui/Button";
 import { formatDateTime } from "@/lib/format";
 import type { ReportVersion } from "@/types";
 
 const REVIEW_STYLES = {
-  APPROVED: "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300",
-  REQUESTED_CHANGES:
-    "bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-300",
+  APPROVED: "bg-ok-soft text-ok-ink",
+  REQUESTED_CHANGES: "bg-warn-soft text-warn-ink",
 };
 
 const REVIEW_LABELS = {
@@ -24,7 +24,7 @@ export default function VersionHistory({
 
   if (versions.length === 0) {
     return (
-      <p className="text-sm text-neutral-500">
+      <p className="text-sm text-ink-3">
         This report has not been submitted yet, so there are no past versions.
       </p>
     );
@@ -39,14 +39,14 @@ export default function VersionHistory({
         return (
           <li
             key={version.id}
-            className="rounded-lg border border-neutral-200 dark:border-neutral-800"
+            className="overflow-hidden rounded-lg border border-line"
           >
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3">
-              <span className="text-sm font-medium">
-                Version {version.versionNumber}
+              <span className="rounded-md bg-surface-muted px-2 py-0.5 font-mono text-xs font-medium">
+                v{version.versionNumber}
               </span>
 
-              <span className="text-sm text-neutral-500">
+              <span className="text-sm text-ink-2">
                 submitted {formatDateTime(version.submittedAt)}
               </span>
 
@@ -58,36 +58,38 @@ export default function VersionHistory({
                   {version.reviewer ? ` by ${version.reviewer.name}` : ""}
                 </span>
               ) : (
-                <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-950 dark:text-blue-300">
+                <span className="rounded-full bg-info-soft px-2 py-0.5 text-xs font-medium text-info-ink">
                   Awaiting review
                 </span>
               )}
 
-              <button
-                type="button"
+              <Button
+                variant="secondary"
+                size="sm"
                 onClick={() => setOpenVersion(open ? null : version.id)}
-                className="ml-auto rounded-md border border-neutral-300 px-2.5 py-1 text-xs hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-800"
+                aria-expanded={open}
+                className="ml-auto"
               >
                 {open ? "Hide content" : "View content"}
-              </button>
+              </Button>
             </div>
 
             {version.reviewComment && (
-              <p className="border-t border-neutral-200 px-4 py-3 text-sm text-neutral-700 dark:border-neutral-800 dark:text-neutral-300">
-                <span className="text-neutral-500">Comment on this version: </span>
+              <p className="border-t border-line-soft bg-surface-muted px-4 py-3 text-sm text-ink-2">
+                <span className="text-ink-3">Comment on this version: </span>
                 {version.reviewComment}
               </p>
             )}
 
             {open && (
-              <div className="border-t border-neutral-200 px-4 py-3 dark:border-neutral-800">
+              <div className="border-t border-line-soft px-4 py-3">
                 {snapshotTasks.length === 0 ? (
-                  <p className="text-sm text-neutral-500">
+                  <p className="text-sm text-ink-3">
                     No tasks were recorded in this version.
                   </p>
                 ) : (
                   <table className="w-full text-sm">
-                    <thead className="text-left text-xs tracking-wide text-neutral-500 uppercase">
+                    <thead className="text-left text-xs tracking-wide text-ink-3 uppercase">
                       <tr>
                         <th className="py-1.5 font-medium">Task</th>
                         <th className="py-1.5 text-right font-medium">
@@ -102,7 +104,7 @@ export default function VersionHistory({
                       {snapshotTasks.map((task, index) => (
                         <tr
                           key={index}
-                          className="border-t border-neutral-200 dark:border-neutral-800"
+                          className="border-t border-line-soft"
                         >
                           <td className="py-2">{task.taskName}</td>
                           <td className="py-2 text-right tabular-nums">

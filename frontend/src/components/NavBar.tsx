@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import Button from "@/components/ui/Button";
 
 const linksForEveryone = [
   { href: "/dashboard", label: "Dashboard" },
@@ -14,6 +15,15 @@ const managerLinks = [
   { href: "/projects", label: "Projects" },
   { href: "/users", label: "Users" },
 ];
+
+function initials(name: string): string {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+}
 
 export default function NavBar() {
   const { user, logout } = useAuth();
@@ -32,14 +42,62 @@ export default function NavBar() {
     router.replace("/login");
   }
 
-  return (
-    <header className="sticky top-0 z-10 border-b border-neutral-200 bg-white/90 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/90">
-      <nav className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
-        <Link href="/dashboard" className="text-sm font-semibold tracking-tight">
-          Weekly Reports
-        </Link>
+  const account = (
+    <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2.5">
+        <span
+          aria-hidden="true"
+          className="flex h-7 w-7 items-center justify-center rounded-full bg-surface-muted text-[11px] font-semibold text-ink-2 ring-1 ring-line"
+        >
+          {initials(user.name)}
+        </span>
+        <span className="hidden leading-tight md:block">
+          <span className="block text-sm font-medium">{user.name}</span>
+          <span className="block text-[11px] tracking-wide text-ink-3 uppercase">
+            {user.role === "MANAGER" ? "Manager" : "Team member"}
+          </span>
+        </span>
+      </div>
 
-        <ul className="flex flex-1 flex-wrap items-center gap-1">
+      <Button variant="secondary" size="sm" onClick={handleLogout}>
+        Sign out
+      </Button>
+    </div>
+  );
+
+  return (
+    <header className="sticky top-0 z-20 border-b border-line bg-surface/80 backdrop-blur-md">
+      <nav
+        aria-label="Main"
+        className="mx-auto flex max-w-6xl flex-col gap-2.5 px-4 py-3 sm:flex-row sm:items-center sm:gap-6 sm:px-6"
+      >
+        {/* On a phone the brand and the account share the top row, and the
+            links get a scrollable row of their own underneath. */}
+        <div className="flex items-center justify-between gap-3 sm:flex-none">
+          <Link
+            href="/dashboard"
+            className="flex items-center gap-2.5 text-sm font-semibold tracking-tight"
+          >
+            <span
+              aria-hidden="true"
+              className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent text-on-accent"
+            >
+              <svg width="15" height="15" viewBox="0 0 20 20" fill="none">
+                <path
+                  d="M4 14.5V9m4 5.5v-9m4 9V11m4 3.5V6.5"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </span>
+            Weekly Reports
+          </Link>
+
+          <div className="sm:hidden">{account}</div>
+        </div>
+
+        <ul className="-mx-1 flex flex-1 items-center gap-1 overflow-x-auto px-1">
           {links.map((link) => {
             const active =
               pathname === link.href || pathname.startsWith(`${link.href}/`);
@@ -47,10 +105,11 @@ export default function NavBar() {
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className={`rounded-md px-2.5 py-1.5 text-sm transition-colors ${
+                  aria-current={active ? "page" : undefined}
+                  className={`inline-flex h-8 items-center rounded-md px-3 text-sm whitespace-nowrap transition-colors ${
                     active
-                      ? "bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900"
-                      : "text-neutral-600 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800"
+                      ? "bg-accent-soft font-medium text-accent-ink"
+                      : "text-ink-2 hover:bg-surface-muted hover:text-ink"
                   }`}
                 >
                   {link.label}
@@ -60,20 +119,7 @@ export default function NavBar() {
           })}
         </ul>
 
-        <div className="flex items-center gap-3">
-          <span className="hidden text-sm text-neutral-600 sm:inline dark:text-neutral-400">
-            {user.name}
-          </span>
-          <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] font-medium tracking-wide text-neutral-600 uppercase dark:bg-neutral-800 dark:text-neutral-400">
-            {user.role === "MANAGER" ? "Manager" : "Team member"}
-          </span>
-          <button
-            onClick={handleLogout}
-            className="rounded-md border border-neutral-300 px-2.5 py-1.5 text-sm hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-800"
-          >
-            Sign out
-          </button>
-        </div>
+        <div className="hidden sm:block">{account}</div>
       </nav>
     </header>
   );

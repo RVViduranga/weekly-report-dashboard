@@ -1,12 +1,10 @@
 import type { ReportStatus } from "@/types";
 
 const STYLES: Record<ReportStatus, string> = {
-  DRAFT:
-    "bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300",
-  SUBMITTED: "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300",
-  NEEDS_CORRECTION:
-    "bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-300",
-  APPROVED: "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300",
+  DRAFT: "bg-idle-soft text-idle-ink",
+  SUBMITTED: "bg-info-soft text-info-ink",
+  NEEDS_CORRECTION: "bg-warn-soft text-warn-ink",
+  APPROVED: "bg-ok-soft text-ok-ink",
 };
 
 const LABELS: Record<ReportStatus, string> = {
@@ -19,8 +17,12 @@ const LABELS: Record<ReportStatus, string> = {
 export default function StatusBadge({ status }: { status: ReportStatus }) {
   return (
     <span
-      className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap ${STYLES[status]}`}
+      className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap ${STYLES[status]}`}
     >
+      <span
+        aria-hidden="true"
+        className="h-1.5 w-1.5 rounded-full bg-current opacity-70"
+      />
       {LABELS[status]}
     </span>
   );

@@ -17,8 +17,12 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
   if (loading) {
     return (
-      <div className="flex flex-1 items-center justify-center p-6">
-        <p className="text-sm text-neutral-500">Loading...</p>
+      <div
+        role="status"
+        aria-label="Loading"
+        className="flex flex-1 items-center justify-center p-6"
+      >
+        <span className="h-6 w-6 animate-spin rounded-full border-2 border-line border-t-accent" />
       </div>
     );
   }
@@ -28,7 +32,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   return (
     <>
       <NavBar />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6">
         {children}
       </main>
     </>

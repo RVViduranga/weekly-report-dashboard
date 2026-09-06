@@ -7,8 +7,21 @@ import StatusBadge from "@/components/StatusBadge";
 import { formatWeekRange } from "@/lib/format";
 import { mondayOf } from "@/lib/reportForm";
 import { useRequireManager } from "@/lib/useRequireManager";
-import type {
+import PageHeader from "@/components/ui/PageHeader";
+import Button, { buttonClasses } from "@/components/ui/Button";
+import { controlClassSm, Notice } from "@/components/ui/Field";
+import EmptyState from "@/components/ui/EmptyState";
+import { SkeletonTable } from "@/components/ui/Skeleton";
+import {
   Pagination,
+  TableShell,
+  tdClass,
+  theadClass,
+  thClass,
+  trClass,
+} from "@/components/ui/Table";
+import type {
+  Pagination as PageInfo,
   Project,
   ReportListItem,
   ReportStatus,
@@ -17,7 +30,7 @@ import type {
 
 interface ReportListResponse {
   reports: ReportListItem[];
-  pagination: Pagination;
+  pagination: PageInfo;
 }
 
 interface UserRow extends User {
@@ -31,9 +44,6 @@ const STATUS_FILTERS: { value: ReportStatus | ""; label: string }[] = [
   { value: "NEEDS_CORRECTION", label: "Needs correction" },
   { value: "APPROVED", label: "Approved" },
 ];
-
-const selectClass =
-  "rounded-md border border-neutral-300 bg-transparent px-2.5 py-1.5 text-sm dark:border-neutral-700";
 
 interface LoadedPage {
   query: string;
@@ -126,226 +136,205 @@ export default function TeamReportsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold">Team reports</h1>
-      <p className="mt-1 text-sm text-neutral-500">
-        Every report from the whole team. Filter it down, then open one to
-        review.
-      </p>
+      <PageHeader
+        title="Team reports"
+        description="Every report from the whole team. Filter it down, then open one to review."
+      />
 
-      <div className="mt-6 flex flex-wrap items-end gap-3">
-        <label className="flex flex-col gap-1">
-          <span className="text-xs text-neutral-500">Team member</span>
-          <select
-            value={userId}
-            onChange={(e) => {
-              setUserId(e.target.value);
-              setPage(1);
-            }}
-            className={selectClass}
-          >
-            <option value="">Everyone</option>
-            {members.map((member) => (
-              <option key={member.id} value={member.id}>
-                {member.name}
-              </option>
-            ))}
-          </select>
-        </label>
+      <div className="mb-4 rounded-xl border border-line bg-surface p-4 shadow-card">
+        <div className="flex flex-wrap items-end gap-3">
+          <label className="flex flex-col gap-1.5">
+            <span className="text-xs font-medium text-ink-3">Team member</span>
+            <select
+              value={userId}
+              onChange={(e) => {
+                setUserId(e.target.value);
+                setPage(1);
+              }}
+              className={controlClassSm}
+            >
+              <option value="">Everyone</option>
+              {members.map((member) => (
+                <option key={member.id} value={member.id}>
+                  {member.name}
+                </option>
+              ))}
+            </select>
+          </label>
 
-        <label className="flex flex-col gap-1">
-          <span className="text-xs text-neutral-500">Project</span>
-          <select
-            value={projectId}
-            onChange={(e) => {
-              setProjectId(e.target.value);
-              setPage(1);
-            }}
-            className={selectClass}
-          >
-            <option value="">All projects</option>
-            {projects.map((project) => (
-              <option key={project.id} value={project.id}>
-                {project.name}
-              </option>
-            ))}
-          </select>
-        </label>
+          <label className="flex flex-col gap-1.5">
+            <span className="text-xs font-medium text-ink-3">Project</span>
+            <select
+              value={projectId}
+              onChange={(e) => {
+                setProjectId(e.target.value);
+                setPage(1);
+              }}
+              className={controlClassSm}
+            >
+              <option value="">All projects</option>
+              {projects.map((project) => (
+                <option key={project.id} value={project.id}>
+                  {project.name}
+                </option>
+              ))}
+            </select>
+          </label>
 
-        <label className="flex flex-col gap-1">
-          <span className="text-xs text-neutral-500">Status</span>
-          <select
-            value={status}
-            onChange={(e) => {
-              setStatus(e.target.value as ReportStatus | "");
-              setPage(1);
-            }}
-            className={selectClass}
-          >
-            {STATUS_FILTERS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
+          <label className="flex flex-col gap-1.5">
+            <span className="text-xs font-medium text-ink-3">Status</span>
+            <select
+              value={status}
+              onChange={(e) => {
+                setStatus(e.target.value as ReportStatus | "");
+                setPage(1);
+              }}
+              className={controlClassSm}
+            >
+              {STATUS_FILTERS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
 
-        <label className="flex flex-col gap-1">
-          <span className="text-xs text-neutral-500">Weeks from</span>
-          <input
-            type="date"
-            value={from}
-            onChange={(e) => {
-              setFrom(e.target.value ? mondayOf(e.target.value) : "");
-              setPage(1);
-            }}
-            className={selectClass}
-          />
-        </label>
+          <label className="flex flex-col gap-1.5">
+            <span className="text-xs font-medium text-ink-3">Weeks from</span>
+            <input
+              type="date"
+              value={from}
+              onChange={(e) => {
+                setFrom(e.target.value ? mondayOf(e.target.value) : "");
+                setPage(1);
+              }}
+              className={controlClassSm}
+            />
+          </label>
 
-        <label className="flex flex-col gap-1">
-          <span className="text-xs text-neutral-500">Weeks to</span>
-          <input
-            type="date"
-            value={to}
-            onChange={(e) => {
-              setTo(e.target.value ? mondayOf(e.target.value) : "");
-              setPage(1);
-            }}
-            className={selectClass}
-          />
-        </label>
+          <label className="flex flex-col gap-1.5">
+            <span className="text-xs font-medium text-ink-3">Weeks to</span>
+            <input
+              type="date"
+              value={to}
+              onChange={(e) => {
+                setTo(e.target.value ? mondayOf(e.target.value) : "");
+                setPage(1);
+              }}
+              className={controlClassSm}
+            />
+          </label>
 
-        {hasFilters && (
-          <button
-            type="button"
-            onClick={resetFilters}
-            className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-800"
-          >
-            Clear filters
-          </button>
-        )}
+          {hasFilters && (
+            <Button variant="ghost" size="sm" onClick={resetFilters}>
+              Clear filters
+            </Button>
+          )}
+
+          {data && (
+            <span className="ml-auto self-center text-sm text-ink-3">
+              <span className="font-medium text-ink-2 tabular-nums">
+                {data.pagination.total}
+              </span>{" "}
+              report{data.pagination.total === 1 ? "" : "s"} match
+              {data.pagination.total === 1 ? "es" : ""}
+            </span>
+          )}
+        </div>
       </div>
 
       {filterError && (
-        <p className="mt-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
-          {filterError}
-        </p>
+        <div className="mb-4">
+          <Notice tone="warn">{filterError}</Notice>
+        </div>
       )}
 
-      {data && (
-        <p className="mt-4 text-sm text-neutral-500">
-          {data.pagination.total} report
-          {data.pagination.total === 1 ? "" : "s"} match
-          {data.pagination.total === 1 ? "es" : ""} these filters
-        </p>
-      )}
+      {loading && <SkeletonTable rows={8} columns={6} />}
 
-      {loading && (
-        <p className="mt-8 text-sm text-neutral-500">Loading reports...</p>
-      )}
-
-      {error && (
-        <p className="mt-8 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
-          {error}
-        </p>
-      )}
+      {!loading && error && <Notice>{error}</Notice>}
 
       {!loading && !error && data && data.reports.length === 0 && (
-        <div className="mt-8 rounded-lg border border-dashed border-neutral-300 p-10 text-center dark:border-neutral-700">
-          <p className="text-sm text-neutral-500">
-            No reports match these filters.
-          </p>
-        </div>
+        <EmptyState
+          icon="search"
+          title="No reports match these filters"
+          description="Widen the date range or clear a filter to see more."
+          action={
+            hasFilters && (
+              <Button variant="secondary" onClick={resetFilters}>
+                Clear filters
+              </Button>
+            )
+          }
+        />
       )}
 
       {!loading && !error && data && data.reports.length > 0 && (
         <>
-          <div className="mt-4 overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
-            <table className="w-full text-sm">
-              <thead className="bg-neutral-50 text-left text-xs tracking-wide text-neutral-500 uppercase dark:bg-neutral-900">
-                <tr>
-                  <th className="px-4 py-3 font-medium">Team member</th>
-                  <th className="px-4 py-3 font-medium">Week</th>
-                  <th className="px-4 py-3 font-medium">Project</th>
-                  <th className="px-4 py-3 font-medium">Status</th>
-                  <th className="px-4 py-3 text-right font-medium">Tasks</th>
-                  <th className="px-4 py-3 text-right font-medium">Blockers</th>
-                  <th className="px-4 py-3" />
-                </tr>
-              </thead>
-              <tbody>
-                {data.reports.map((report) => (
-                  <tr
-                    key={report.id}
-                    className="border-t border-neutral-200 dark:border-neutral-800"
-                  >
-                    <td className="px-4 py-3">
+          <TableShell>
+            <thead className={theadClass}>
+              <tr>
+                <th className={thClass}>Team member</th>
+                <th className={thClass}>Week</th>
+                <th className={thClass}>Project</th>
+                <th className={thClass}>Status</th>
+                <th className={`${thClass} text-right`}>Tasks</th>
+                <th className={`${thClass} text-right`}>Blockers</th>
+                <th className={thClass} />
+              </tr>
+            </thead>
+            <tbody>
+              {data.reports.map((report) => (
+                <tr key={report.id} className={trClass}>
+                  <td className={tdClass}>
+                    <Link
+                      href={`/users/${report.userId}`}
+                      className="font-medium underline-offset-2 hover:underline"
+                    >
+                      {report.user.name}
+                    </Link>
+                  </td>
+                  <td className={`${tdClass} whitespace-nowrap text-ink-2`}>
+                    {formatWeekRange(report.weekStart, report.weekEnd)}
+                  </td>
+                  <td className={`${tdClass} text-ink-2`}>
+                    {report.project.name}
+                  </td>
+                  <td className={tdClass}>
+                    <StatusBadge status={report.status} />
+                  </td>
+                  <td className={`${tdClass} text-right tabular-nums`}>
+                    {report._count.taskItems}
+                  </td>
+                  <td className={`${tdClass} text-right tabular-nums`}>
+                    {report._count.blockers}
+                  </td>
+                  <td className={`${tdClass} text-right whitespace-nowrap`}>
+                    {report.status === "SUBMITTED" ? (
                       <Link
-                        href={`/users/${report.userId}`}
-                        className="underline underline-offset-2"
+                        href={`/team/${report.id}`}
+                        className={buttonClasses("primary", "sm")}
                       >
-                        {report.user.name}
+                        Review
                       </Link>
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      {formatWeekRange(report.weekStart, report.weekEnd)}
-                    </td>
-                    <td className="px-4 py-3">{report.project.name}</td>
-                    <td className="px-4 py-3">
-                      <StatusBadge status={report.status} />
-                    </td>
-                    <td className="px-4 py-3 text-right tabular-nums">
-                      {report._count.taskItems}
-                    </td>
-                    <td className="px-4 py-3 text-right tabular-nums">
-                      {report._count.blockers}
-                    </td>
-                    <td className="px-4 py-3 text-right whitespace-nowrap">
-                      {report.status === "SUBMITTED" ? (
-                        <Link
-                          href={`/team/${report.id}`}
-                          className="rounded-md bg-neutral-900 px-2.5 py-1 text-xs font-medium text-white dark:bg-neutral-100 dark:text-neutral-900"
-                        >
-                          Review
-                        </Link>
-                      ) : (
-                        <Link
-                          href={`/reports/${report.id}`}
-                          className="underline underline-offset-2"
-                        >
-                          View
-                        </Link>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    ) : (
+                      <Link
+                        href={`/reports/${report.id}`}
+                        className="font-medium text-accent-ink underline-offset-2 hover:underline"
+                      >
+                        View
+                      </Link>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </TableShell>
 
-          {data.pagination.totalPages > 1 && (
-            <div className="mt-4 flex items-center justify-between gap-4">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page <= 1}
-                className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm disabled:opacity-40 dark:border-neutral-700"
-              >
-                Previous
-              </button>
-
-              <span className="text-sm text-neutral-500">
-                Page {data.pagination.page} of {data.pagination.totalPages}
-              </span>
-
-              <button
-                onClick={() => setPage((p) => p + 1)}
-                disabled={page >= data.pagination.totalPages}
-                className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm disabled:opacity-40 dark:border-neutral-700"
-              >
-                Next
-              </button>
-            </div>
-          )}
+          <Pagination
+            page={data.pagination.page}
+            totalPages={data.pagination.totalPages}
+            onChange={setPage}
+          />
         </>
       )}
     </div>

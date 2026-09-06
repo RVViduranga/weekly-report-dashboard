@@ -1,26 +1,140 @@
 @import "tailwindcss";
 
+/*
+ * One token layer, two themes. Components never name a raw colour - they use
+ * the semantic tokens below, so light and dark stay in step and there is no
+ * `dark:` variant sprinkled through the markup.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  /* Native controls - scrollbars, selects, date pickers - follow this. */
+  color-scheme: light dark;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --page: #f7f7f8;
+  --surface: #ffffff;
+  --surface-muted: #fafafa;
+  --line: #e4e4e7;
+  --line-soft: #efeff1;
+
+  --ink: #18181b;
+  --ink-2: #52525b;
+  --ink-3: #8b8b93;
+
+  --accent: #4f46e5;
+  --accent-hover: #4338ca;
+  --accent-soft: #eef2ff;
+  --accent-ink: #3730a3;
+  --accent-line: #c7d2fe;
+
+  --on-accent: #ffffff;
+
+  --ok-soft: #dcfce7;
+  --ok-ink: #15803d;
+  --warn-soft: #fef3c7;
+  --warn-ink: #92400e;
+  --info-soft: #dbeafe;
+  --info-ink: #1d4ed8;
+  --idle-soft: #f1f1f3;
+  --idle-ink: #52525b;
+  --danger-soft: #fee2e2;
+  --danger-ink: #b91c1c;
+
+  --ring: #a5b4fc;
+  --elevation-1: 0 1px 2px rgb(24 24 27 / 0.05);
+  --elevation-2: 0 1px 3px rgb(24 24 27 / 0.08), 0 4px 12px rgb(24 24 27 / 0.04);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --page: #09090b;
+    --surface: #131316;
+    --surface-muted: #1a1a1f;
+    --line: #27272d;
+    --line-soft: #1e1e23;
+
+    --ink: #ededf0;
+    --ink-2: #a1a1aa;
+    --ink-3: #71717a;
+
+    --accent: #6366f1;
+    --accent-hover: #818cf8;
+    --accent-soft: #1e1b4b;
+    --accent-ink: #c7d2fe;
+    --accent-line: #3730a3;
+
+    --on-accent: #ffffff;
+
+    --ok-soft: #0d2f1c;
+    --ok-ink: #6ee7a8;
+    --warn-soft: #362408;
+    --warn-ink: #fbbf24;
+    --info-soft: #12224a;
+    --info-ink: #93b4fd;
+    --idle-soft: #232329;
+    --idle-ink: #a1a1aa;
+    --danger-soft: #3d1418;
+    --danger-ink: #fca5a5;
+
+    --ring: #4f46e5;
+    --elevation-1: none;
+    --elevation-2: none;
   }
 }
 
+@theme inline {
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-line: var(--accent-line);
+  --color-on-accent: var(--on-accent);
+
+  --color-ok-soft: var(--ok-soft);
+  --color-ok-ink: var(--ok-ink);
+  --color-warn-soft: var(--warn-soft);
+  --color-warn-ink: var(--warn-ink);
+  --color-info-soft: var(--info-soft);
+  --color-info-ink: var(--info-ink);
+  --color-idle-soft: var(--idle-soft);
+  --color-idle-ink: var(--idle-ink);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-ink: var(--danger-ink);
+
+  --shadow-card: var(--elevation-1);
+  --shadow-raised: var(--elevation-2);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--page);
+  color: var(--ink);
+}
+
+/* One focus treatment for everything the keyboard can reach. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
 }

@@ -5,6 +5,11 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { api, ApiError } from "@/lib/api";
 import ReportForm from "@/components/ReportForm";
+import Card from "@/components/ui/Card";
+import PageHeader, { BackLink } from "@/components/ui/PageHeader";
+import { buttonClasses } from "@/components/ui/Button";
+import { Notice } from "@/components/ui/Field";
+import Skeleton from "@/components/ui/Skeleton";
 import { formValuesFromReport, type ReportFormValues } from "@/lib/reportForm";
 import type { Report, ReportVersion } from "@/types";
 
@@ -72,14 +77,23 @@ export default function EditReportPage() {
   }, [reportId]);
 
   if (loading) {
-    return <p className="text-sm text-neutral-500">Loading report...</p>;
+    return (
+      <div className="flex flex-col gap-4">
+        <Skeleton className="h-4 w-32" />
+        <Skeleton className="h-8 w-56" />
+        <Skeleton className="h-4 w-72" />
+        <Skeleton className="mt-2 h-24 w-full rounded-xl" />
+        <Skeleton className="h-56 w-full rounded-xl" />
+      </div>
+    );
   }
 
   if (error) {
     return (
-      <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
-        {error}
-      </p>
+      <div>
+        <BackLink href="/reports">Back to my reports</BackLink>
+        <Notice>{error}</Notice>
+      </div>
     );
   }
 
@@ -90,29 +104,36 @@ export default function EditReportPage() {
 
   if (!editable) {
     return (
-      <div className="rounded-lg border border-neutral-200 p-6 dark:border-neutral-800">
-        <p className="text-sm">
-          This report has already been submitted, so it cannot be edited right
-          now.
-        </p>
-        <Link
-          href={`/reports/${reportId}`}
-          className="mt-3 inline-block text-sm underline"
-        >
-          View the report
-        </Link>
+      <div>
+        <BackLink href="/reports">Back to my reports</BackLink>
+        <Card className="p-6">
+          <p className="text-sm">
+            This report has already been submitted, so it cannot be edited right
+            now.
+          </p>
+          <Link
+            href={`/reports/${reportId}`}
+            className={buttonClasses("secondary", "md", "mt-4")}
+          >
+            View the report
+          </Link>
+        </Card>
       </div>
     );
   }
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold">Edit weekly report</h1>
-      <p className="mt-1 mb-8 text-sm text-neutral-500">
-        {report.status === "NEEDS_CORRECTION"
-          ? "Address the reviewer's comment, then resubmit."
-          : "Keep editing your draft, then submit it when it is ready."}
-      </p>
+      <BackLink href={`/reports/${reportId}`}>Back to the report</BackLink>
+
+      <PageHeader
+        title="Edit weekly report"
+        description={
+          report.status === "NEEDS_CORRECTION"
+            ? "Address the reviewer's comment, then resubmit."
+            : "Keep editing your draft, then submit it when it is ready."
+        }
+      />
 
       <ReportForm
         mode="edit"

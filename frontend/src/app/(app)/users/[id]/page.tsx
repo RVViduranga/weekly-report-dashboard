@@ -7,6 +7,18 @@ import { api, ApiError } from "@/lib/api";
 import StatusBadge from "@/components/StatusBadge";
 import { formatWeekRange } from "@/lib/format";
 import { useRequireManager } from "@/lib/useRequireManager";
+import { BackLink } from "@/components/ui/PageHeader";
+import { buttonClasses } from "@/components/ui/Button";
+import { Notice } from "@/components/ui/Field";
+import EmptyState from "@/components/ui/EmptyState";
+import Skeleton, { SkeletonCard, SkeletonTable } from "@/components/ui/Skeleton";
+import {
+  TableShell,
+  tdClass,
+  theadClass,
+  thClass,
+  trClass,
+} from "@/components/ui/Table";
 import type { Pagination, ReportListItem, ReportStatus, User } from "@/types";
 
 interface UserStatsResponse {
@@ -25,6 +37,15 @@ const STAT_ORDER: { key: ReportStatus; label: string }[] = [
   { key: "NEEDS_CORRECTION", label: "Needs correction" },
   { key: "DRAFT", label: "Draft" },
 ];
+
+function initials(name: string): string {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+}
 
 export default function MemberProfilePage() {
   const params = useParams<{ id: string }>();
@@ -69,18 +90,25 @@ export default function MemberProfilePage() {
   if (!isManager) return null;
 
   if (loading) {
-    return <p className="text-sm text-neutral-500">Loading profile...</p>;
+    return (
+      <div className="flex flex-col gap-6">
+        <Skeleton className="h-4 w-36" />
+        <Skeleton className="h-9 w-56" />
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
+        <SkeletonTable rows={5} columns={4} />
+      </div>
+    );
   }
 
   if (error || !profile) {
     return (
       <div>
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
-          {error ?? "Not found"}
-        </p>
-        <Link href="/users" className="mt-4 inline-block text-sm underline">
-          Back to team members
-        </Link>
+        <BackLink href="/users">Back to team members</BackLink>
+        <Notice>{error ?? "Not found"}</Notice>
       </div>
     );
   }
@@ -91,92 +119,103 @@ export default function MemberProfilePage() {
   );
 
   return (
-    <div className="flex flex-col gap-6">
-      <Link
-        href="/users"
-        className="self-start text-sm text-neutral-500 underline underline-offset-2"
-      >
-        Back to team members
-      </Link>
+    <div>
+      <BackLink href="/users">Back to team members</BackLink>
 
-      <header>
-        <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-2xl font-semibold">{profile.user.name}</h1>
-          <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] font-medium tracking-wide text-neutral-600 uppercase dark:bg-neutral-800 dark:text-neutral-400">
-            {profile.user.role === "MANAGER" ? "Manager" : "Team member"}
-          </span>
+      <header className="flex items-center gap-4 pb-6">
+        <span
+          aria-hidden="true"
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent-soft text-sm font-semibold text-accent-ink"
+        >
+          {initials(profile.user.name)}
+        </span>
+        <div>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <h1 className="text-2xl font-semibold tracking-tight">
+              {profile.user.name}
+            </h1>
+            <span className="rounded-full bg-idle-soft px-2 py-0.5 text-[11px] font-medium tracking-wide text-idle-ink uppercase">
+              {profile.user.role === "MANAGER" ? "Manager" : "Team member"}
+            </span>
+          </div>
+          <p className="mt-0.5 text-sm text-ink-2">{profile.user.email}</p>
         </div>
-        <p className="mt-1 text-sm text-neutral-500">{profile.user.email}</p>
       </header>
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {STAT_ORDER.map((stat) => (
           <div
             key={stat.key}
-            className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800"
+            className="rounded-xl border border-line bg-surface p-4 shadow-card"
           >
-            <p className="text-xs text-neutral-500">{stat.label}</p>
-            <p className="mt-1 text-2xl font-semibold tabular-nums">
+            <p className="text-xs font-medium tracking-wide text-ink-3 uppercase">
+              {stat.label}
+            </p>
+            <p className="mt-2 text-2xl font-semibold tabular-nums">
               {profile.stats[stat.key]}
             </p>
           </div>
         ))}
       </section>
 
-      <section>
-        <h2 className="mb-3 text-sm font-semibold tracking-wide text-neutral-500 uppercase">
-          Report history ({totalReports})
+      <section className="mt-8">
+        <h2 className="mb-3 text-sm font-semibold">
+          Report history{" "}
+          <span className="font-normal text-ink-3">({totalReports})</span>
         </h2>
 
         {reports.length === 0 ? (
-          <p className="text-sm text-neutral-500">
-            This person has not filed any reports yet.
-          </p>
+          <EmptyState
+            title="No reports yet"
+            description="Nothing has been filed by this person so far."
+          />
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
-            <table className="w-full text-sm">
-              <thead className="bg-neutral-50 text-left text-xs tracking-wide text-neutral-500 uppercase dark:bg-neutral-900">
-                <tr>
-                  <th className="px-4 py-3 font-medium">Week</th>
-                  <th className="px-4 py-3 font-medium">Project</th>
-                  <th className="px-4 py-3 font-medium">Status</th>
-                  <th className="px-4 py-3 text-right font-medium">Tasks</th>
-                  <th className="px-4 py-3" />
-                </tr>
-              </thead>
-              <tbody>
-                {reports.map((report) => (
-                  <tr
-                    key={report.id}
-                    className="border-t border-neutral-200 dark:border-neutral-800"
-                  >
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      {formatWeekRange(report.weekStart, report.weekEnd)}
-                    </td>
-                    <td className="px-4 py-3">{report.project.name}</td>
-                    <td className="px-4 py-3">
-                      <StatusBadge status={report.status} />
-                    </td>
-                    <td className="px-4 py-3 text-right tabular-nums">
-                      {report._count.taskItems}
-                    </td>
-                    <td className="px-4 py-3 text-right whitespace-nowrap">
+          <TableShell>
+            <thead className={theadClass}>
+              <tr>
+                <th className={thClass}>Week</th>
+                <th className={thClass}>Project</th>
+                <th className={thClass}>Status</th>
+                <th className={`${thClass} text-right`}>Tasks</th>
+                <th className={thClass} />
+              </tr>
+            </thead>
+            <tbody>
+              {reports.map((report) => (
+                <tr key={report.id} className={trClass}>
+                  <td className={`${tdClass} font-medium whitespace-nowrap`}>
+                    {formatWeekRange(report.weekStart, report.weekEnd)}
+                  </td>
+                  <td className={`${tdClass} text-ink-2`}>
+                    {report.project.name}
+                  </td>
+                  <td className={tdClass}>
+                    <StatusBadge status={report.status} />
+                  </td>
+                  <td className={`${tdClass} text-right tabular-nums`}>
+                    {report._count.taskItems}
+                  </td>
+                  <td className={`${tdClass} text-right whitespace-nowrap`}>
+                    {report.status === "SUBMITTED" ? (
                       <Link
-                        href={
-                          report.status === "SUBMITTED"
-                            ? `/team/${report.id}`
-                            : `/reports/${report.id}`
-                        }
-                        className="underline underline-offset-2"
+                        href={`/team/${report.id}`}
+                        className={buttonClasses("primary", "sm")}
                       >
-                        {report.status === "SUBMITTED" ? "Review" : "View"}
+                        Review
                       </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    ) : (
+                      <Link
+                        href={`/reports/${report.id}`}
+                        className="font-medium text-accent-ink underline-offset-2 hover:underline"
+                      >
+                        View
+                      </Link>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </TableShell>
         )}
       </section>
     </div>

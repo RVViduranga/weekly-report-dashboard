@@ -63,10 +63,14 @@ weekly-report-dashboard/
 │     └─ index.ts             # starts the server
 ├─ frontend/
 │  └─ src/
-│     ├─ app/                 # pages (Next.js App Router)
-│     ├─ components/          # reusable UI
+│     ├─ app/
+│     │  ├─ globals.css       # the design tokens both themes read from
+│     │  └─ ...               # pages (Next.js App Router)
+│     ├─ components/
+│     │  ├─ ui/               # button, card, table, field, skeleton, empty state
+│     │  └─ ...               # report detail, report form, version history
 │     ├─ context/             # auth context
-│     ├─ lib/                 # api client, formatting, form helpers
+│     ├─ lib/                 # api client, formatting, form helpers, chart palette
 │     └─ types/               # shared API types
 └─ docs/
    └─ er-diagram.png          # database diagram
@@ -244,6 +248,28 @@ manager-only endpoints, ownership isolation between team members, and the rule t
 a manager can change a report's status but not rewrite its content. The suite runs
 against the seeded database and only performs reads and rejected writes, so it does
 not disturb the demo data.
+
+## Interface
+
+One token layer, two themes. `src/app/globals.css` defines a semantic palette -
+surfaces, lines, ink, one accent, four status colours - and redefines those same
+tokens under `prefers-color-scheme: dark`. Components name the token, never the
+colour, so there is no `dark:` variant anywhere in the markup and the two themes
+cannot drift apart. `src/components/ui/` holds the primitives the rest is built
+from: button, card, table shell, form field, skeleton, empty state.
+
+Four things that are easy to skip, and were not:
+
+- **The chart palette is checked, not picked by eye.** The four status hues are
+  validated as a set for colour-vision deficiency and for 3:1 contrast against
+  their own surface, in the order they are stacked. Charts with a single series
+  use the interface accent instead, so they read as part of the page rather than
+  a guest on it.
+- **Loading states are shaped like the content they replace**, so the page does
+  not jump when the data lands.
+- **One focus treatment**, defined once, for everything the keyboard can reach.
+- **Wide tables scroll inside their own card**, so no page scrolls sideways on a
+  phone.
 
 ## Database
 

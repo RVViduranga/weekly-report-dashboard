@@ -1,5 +1,6 @@
 "use client";
 
+import Button from "@/components/ui/Button";
 import {
   PRIORITIES,
   PRIORITY_LABELS,
@@ -15,7 +16,7 @@ interface Props {
 }
 
 const cellInput =
-  "w-full rounded border border-neutral-300 bg-transparent px-2 py-1.5 text-sm outline-none focus:border-neutral-900 dark:border-neutral-700 dark:focus:border-neutral-300";
+  "h-8 w-full rounded-md border border-line bg-surface px-2 text-sm text-ink transition-colors placeholder:text-ink-3 hover:border-ink-3 focus:border-accent";
 
 export default function TaskItemsEditor({ tasks, onChange }: Props) {
   function updateTask(index: number, patch: Partial<TaskDraft>) {
@@ -29,9 +30,9 @@ export default function TaskItemsEditor({ tasks, onChange }: Props) {
 
   return (
     <div>
-      <div className="overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
-        <table className="w-full min-w-[900px] text-sm">
-          <thead className="bg-neutral-50 text-left text-xs tracking-wide text-neutral-500 uppercase dark:bg-neutral-900">
+      <div className="overflow-x-auto rounded-lg border border-line">
+        <table className="w-full min-w-[940px] text-sm">
+          <thead className="border-b border-line bg-surface-muted text-left text-xs tracking-wide text-ink-3 uppercase">
             <tr>
               <th className="px-3 py-2.5 font-medium">Task</th>
               <th className="px-3 py-2.5 font-medium">Priority</th>
@@ -48,9 +49,9 @@ export default function TaskItemsEditor({ tasks, onChange }: Props) {
             {tasks.map((task, index) => (
               <tr
                 key={index}
-                className="border-t border-neutral-200 align-top dark:border-neutral-800"
+                className="border-b border-line-soft align-top last:border-0"
               >
-                <td className="px-3 py-2 min-w-[200px]">
+                <td className="min-w-[210px] px-3 py-2">
                   <input
                     value={task.taskName}
                     onChange={(e) =>
@@ -94,7 +95,7 @@ export default function TaskItemsEditor({ tasks, onChange }: Props) {
                     ))}
                   </select>
                 </td>
-                <td className="px-3 py-2 w-24">
+                <td className="w-24 px-3 py-2">
                   <input
                     type="number"
                     min={0}
@@ -103,10 +104,10 @@ export default function TaskItemsEditor({ tasks, onChange }: Props) {
                     onChange={(e) =>
                       updateTask(index, { plannedPercent: e.target.value })
                     }
-                    className={cellInput}
+                    className={`${cellInput} tabular-nums`}
                   />
                 </td>
-                <td className="px-3 py-2 w-24">
+                <td className="w-24 px-3 py-2">
                   <input
                     type="number"
                     min={0}
@@ -115,10 +116,10 @@ export default function TaskItemsEditor({ tasks, onChange }: Props) {
                     onChange={(e) =>
                       updateTask(index, { actualPercent: e.target.value })
                     }
-                    className={cellInput}
+                    className={`${cellInput} tabular-nums`}
                   />
                 </td>
-                <td className="px-3 py-2 w-24">
+                <td className="w-24 px-3 py-2">
                   <input
                     type="number"
                     min={0}
@@ -127,10 +128,10 @@ export default function TaskItemsEditor({ tasks, onChange }: Props) {
                     onChange={(e) =>
                       updateTask(index, { timePlannedHrs: e.target.value })
                     }
-                    className={cellInput}
+                    className={`${cellInput} tabular-nums`}
                   />
                 </td>
-                <td className="px-3 py-2 w-24">
+                <td className="w-24 px-3 py-2">
                   <input
                     type="number"
                     min={0}
@@ -139,10 +140,10 @@ export default function TaskItemsEditor({ tasks, onChange }: Props) {
                     onChange={(e) =>
                       updateTask(index, { timeSpentHrs: e.target.value })
                     }
-                    className={cellInput}
+                    className={`${cellInput} tabular-nums`}
                   />
                 </td>
-                <td className="px-3 py-2 min-w-[160px]">
+                <td className="min-w-[170px] px-3 py-2">
                   <input
                     value={task.output}
                     onChange={(e) =>
@@ -156,10 +157,23 @@ export default function TaskItemsEditor({ tasks, onChange }: Props) {
                   <button
                     type="button"
                     onClick={() => removeTask(index)}
-                    className="rounded px-2 py-1 text-xs text-neutral-500 hover:bg-neutral-100 hover:text-red-600 dark:hover:bg-neutral-800"
                     aria-label={`Remove task ${index + 1}`}
+                    className="flex h-8 w-8 items-center justify-center rounded-md text-ink-3 transition-colors hover:bg-danger-soft hover:text-danger-ink"
                   >
-                    Remove
+                    <svg
+                      width="15"
+                      height="15"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M4 4l8 8M12 4l-8 8"
+                        stroke="currentColor"
+                        strokeWidth="1.6"
+                        strokeLinecap="round"
+                      />
+                    </svg>
                   </button>
                 </td>
               </tr>
@@ -168,13 +182,15 @@ export default function TaskItemsEditor({ tasks, onChange }: Props) {
         </table>
       </div>
 
-      <button
+      <Button
         type="button"
+        variant="secondary"
+        size="sm"
         onClick={() => onChange([...tasks, emptyTask()])}
-        className="mt-3 rounded-md border border-neutral-300 px-3 py-1.5 text-sm hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-800"
+        className="mt-3"
       >
         Add task
-      </button>
+      </Button>
     </div>
   );
 }
