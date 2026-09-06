@@ -7,10 +7,30 @@ import reportRoutes from "./routes/report.routes";
 import userRoutes from "./routes/user.routes";
 import dashboardRoutes from "./routes/dashboard.routes";
 
+function allowedOrigins(): string[] {
+  return (process.env.FRONTEND_URL ?? "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter((origin) => origin.length > 0);
+}
+
 export function createApp() {
   const app = express();
+  const origins = allowedOrigins();
 
-  app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
+  app.use(
+    cors({
+      origin(origin, callback) {
+        if (!origin || origins.includes(origin)) {
+          callback(null, true);
+          return;
+        }
+        callback(new Error(`Origin ${origin} is not allowed`));
+      },
+      credentials: true,
+    })
+  );
+
   app.use(express.json());
   app.use(cookieParser());
 
