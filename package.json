@@ -1,0 +1,10 @@
+{
+  "name": "weekly-report-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Weekly report submission and manager review dashboard",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ]
+}
