@@ -1,0 +1,247 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="823" height="971" viewBox="0 0 823 971">
+<rect width="823" height="971" fill="#ffffff"/>
+<text x="40" y="40" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" fill="#0f172a">Weekly Report Generator &amp; Team Dashboard — ER diagram</text>
+<text x="40" y="60" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#64748b">PostgreSQL via Prisma. PK = primary key, FK = foreign key, U = unique. Every child of Report cascades on delete.</text>
+<path d="M 196 122 L 251 122 L 251 122 L 306 122" fill="none" stroke="#94a3b8" stroke-width="1.4"/>
+<line x1="201" y1="116" x2="201" y2="128" stroke="#94a3b8" stroke-width="1.4"/>
+<path d="M 296 116 L 306 122 L 296 128 M 296 122 L 306 122" fill="none" stroke="#94a3b8" stroke-width="1.4"/>
+<text x="230" y="115" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#64748b">files</text>
+<path d="M 196 329 L 251 329 L 251 148 L 306 148" fill="none" stroke="#94a3b8" stroke-width="1.4"/>
+<line x1="201" y1="323" x2="201" y2="335" stroke="#94a3b8" stroke-width="1.4"/>
+<path d="M 296 142 L 306 148 L 296 154 M 296 148 L 306 148" fill="none" stroke="#94a3b8" stroke-width="1.4"/>
+<text x="230" y="322" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#64748b">tags</text>
+<path d="M 118 251 L 118 473" fill="none" stroke="#94a3b8" stroke-width="1.4"/>
+<line x1="112" y1="256" x2="124" y2="256" stroke="#94a3b8" stroke-width="1.4"/>
+<path d="M 112 463 L 118 473 L 124 463 M 118 463 L 118 473" fill="none" stroke="#94a3b8" stroke-width="1.4"/>
+<path d="M 118 439 L 118 473" fill="none" stroke="#94a3b8" stroke-width="1.4"/>
+<line x1="112" y1="444" x2="124" y2="444" stroke="#94a3b8" stroke-width="1.4"/>
+<path d="M 112 463 L 118 473 L 124 463 M 118 463 L 118 473" fill="none" stroke="#94a3b8" stroke-width="1.4"/>
+<path d="M 406 353 L 406 387" fill="none" stroke="#94a3b8" stroke-width="1.4"/>
+<line x1="400" y1="358" x2="412" y2="358" stroke="#94a3b8" stroke-width="1.4"/>
+<path d="M 400 377 L 406 387 L 412 377 M 406 377 L 406 387" fill="none" stroke="#94a3b8" stroke-width="1.4"/>
+<text x="416" y="374" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#64748b">snapshots</text>
+<path d="M 196 148 L 251 148 L 251 431 L 306 431" fill="none" stroke="#94a3b8" stroke-width="1.4"/>
+<line x1="201" y1="142" x2="201" y2="154" stroke="#94a3b8" stroke-width="1.4"/>
+<path d="M 296 425 L 306 431 L 296 437 M 296 431 L 306 431" fill="none" stroke="#94a3b8" stroke-width="1.4"/>
+<text x="230" y="141" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#64748b">reviews</text>
+<path d="M 506 122 L 561 122 L 561 122 L 616 122" fill="none" stroke="#94a3b8" stroke-width="1.4"/>
+<line x1="511" y1="116" x2="511" y2="128" stroke="#94a3b8" stroke-width="1.4"/>
+<path d="M 606 116 L 616 122 L 606 128 M 606 122 L 616 122" fill="none" stroke="#94a3b8" stroke-width="1.4"/>
+<path d="M 506 148 L 561 148 L 561 384 L 616 384" fill="none" stroke="#94a3b8" stroke-width="1.4"/>
+<line x1="511" y1="142" x2="511" y2="154" stroke="#94a3b8" stroke-width="1.4"/>
+<path d="M 606 378 L 616 384 L 606 390 M 606 384 L 616 384" fill="none" stroke="#94a3b8" stroke-width="1.4"/>
+<path d="M 506 174 L 561 174 L 561 513 L 616 513" fill="none" stroke="#94a3b8" stroke-width="1.4"/>
+<line x1="511" y1="168" x2="511" y2="180" stroke="#94a3b8" stroke-width="1.4"/>
+<path d="M 606 507 L 616 513 L 606 519 M 606 513 L 616 513" fill="none" stroke="#94a3b8" stroke-width="1.4"/>
+<path d="M 506 200 L 561 200 L 561 682 L 616 682" fill="none" stroke="#94a3b8" stroke-width="1.4"/>
+<line x1="511" y1="194" x2="511" y2="206" stroke="#94a3b8" stroke-width="1.4"/>
+<path d="M 606 676 L 616 682 L 606 688 M 606 682 L 616 682" fill="none" stroke="#94a3b8" stroke-width="1.4"/>
+<path d="M 506 226 L 561 226 L 561 851 L 616 851" fill="none" stroke="#94a3b8" stroke-width="1.4"/>
+<line x1="511" y1="220" x2="511" y2="232" stroke="#94a3b8" stroke-width="1.4"/>
+<path d="M 606 845 L 616 851 L 606 857 M 606 851 L 616 851" fill="none" stroke="#94a3b8" stroke-width="1.4"/>
+<rect x="40" y="78" width="156" height="173" rx="7" fill="#ffffff" stroke="#9db8e0" stroke-width="1.4"/>
+<path d="M 40 85 a 7 7 0 0 1 7 -7 L 189 78 a 7 7 0 0 1 7 7 L 196 108 L 40 108 Z" fill="#e8effa"/>
+<line x1="40" y1="108" x2="196" y2="108" stroke="#9db8e0" stroke-width="1.4"/>
+<text x="52" y="98" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" fill="#1e3a6b">User</text>
+<text x="52" y="122" font-family="Arial, Helvetica, sans-serif" font-size="8.5" font-weight="700" fill="#b45309">PK</text>
+<text x="76" y="122" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">id</text>
+<text x="184" y="122" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">uuid</text>
+<text x="76" y="141" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">name</text>
+<text x="184" y="141" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">text</text>
+<text x="52" y="160" font-family="Arial, Helvetica, sans-serif" font-size="8.5" font-weight="700" fill="#7c3aed">U</text>
+<text x="76" y="160" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">email</text>
+<text x="184" y="160" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">text</text>
+<text x="76" y="179" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">passwordHash</text>
+<text x="184" y="179" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">text</text>
+<text x="76" y="198" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">role</text>
+<text x="184" y="198" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">Role</text>
+<text x="76" y="217" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">createdAt</text>
+<text x="184" y="217" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">timestamp</text>
+<line x1="41" y1="224" x2="195" y2="224" stroke="#e2e8f0" stroke-width="1"/>
+<text x="52" y="237" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" fill="#64748b">Role = TEAM_MEMBER | MANAGER</text>
+<rect x="40" y="285" width="156" height="154" rx="7" fill="#ffffff" stroke="#9db8e0" stroke-width="1.4"/>
+<path d="M 40 292 a 7 7 0 0 1 7 -7 L 189 285 a 7 7 0 0 1 7 7 L 196 315 L 40 315 Z" fill="#e8effa"/>
+<line x1="40" y1="315" x2="196" y2="315" stroke="#9db8e0" stroke-width="1.4"/>
+<text x="52" y="305" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" fill="#1e3a6b">Project</text>
+<text x="52" y="329" font-family="Arial, Helvetica, sans-serif" font-size="8.5" font-weight="700" fill="#b45309">PK</text>
+<text x="76" y="329" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">id</text>
+<text x="184" y="329" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">uuid</text>
+<text x="76" y="348" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">name</text>
+<text x="184" y="348" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">text</text>
+<text x="76" y="367" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">description</text>
+<text x="184" y="367" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">text?</text>
+<text x="76" y="386" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">isActive</text>
+<text x="184" y="386" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">boolean</text>
+<text x="76" y="405" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">createdAt</text>
+<text x="184" y="405" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">timestamp</text>
+<line x1="41" y1="412" x2="195" y2="412" stroke="#e2e8f0" stroke-width="1"/>
+<text x="52" y="425" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" fill="#64748b">isActive = soft delete</text>
+<rect x="40" y="473" width="156" height="116" rx="7" fill="#ffffff" stroke="#9db8e0" stroke-width="1.4"/>
+<path d="M 40 480 a 7 7 0 0 1 7 -7 L 189 473 a 7 7 0 0 1 7 7 L 196 503 L 40 503 Z" fill="#e8effa"/>
+<line x1="40" y1="503" x2="196" y2="503" stroke="#9db8e0" stroke-width="1.4"/>
+<text x="52" y="493" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" fill="#1e3a6b">ProjectMember</text>
+<text x="52" y="517" font-family="Arial, Helvetica, sans-serif" font-size="8.5" font-weight="700" fill="#b45309">PK</text>
+<text x="76" y="517" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">id</text>
+<text x="184" y="517" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">uuid</text>
+<text x="52" y="536" font-family="Arial, Helvetica, sans-serif" font-size="8.5" font-weight="700" fill="#2563eb">FK</text>
+<text x="76" y="536" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">projectId</text>
+<text x="184" y="536" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">uuid</text>
+<text x="52" y="555" font-family="Arial, Helvetica, sans-serif" font-size="8.5" font-weight="700" fill="#2563eb">FK</text>
+<text x="76" y="555" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">userId</text>
+<text x="184" y="555" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">uuid</text>
+<line x1="41" y1="562" x2="195" y2="562" stroke="#e2e8f0" stroke-width="1"/>
+<text x="52" y="575" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" fill="#64748b">unique (projectId, userId)</text>
+<rect x="306" y="78" width="200" height="275" rx="7" fill="#ffffff" stroke="#5b8ed6" stroke-width="1.4"/>
+<path d="M 306 85 a 7 7 0 0 1 7 -7 L 499 78 a 7 7 0 0 1 7 7 L 506 108 L 306 108 Z" fill="#dbe9fb"/>
+<line x1="306" y1="108" x2="506" y2="108" stroke="#5b8ed6" stroke-width="1.4"/>
+<text x="318" y="98" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" fill="#12376e">Report</text>
+<text x="318" y="122" font-family="Arial, Helvetica, sans-serif" font-size="8.5" font-weight="700" fill="#b45309">PK</text>
+<text x="342" y="122" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">id</text>
+<text x="494" y="122" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">uuid</text>
+<text x="318" y="141" font-family="Arial, Helvetica, sans-serif" font-size="8.5" font-weight="700" fill="#2563eb">FK</text>
+<text x="342" y="141" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">userId</text>
+<text x="494" y="141" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">uuid</text>
+<text x="318" y="160" font-family="Arial, Helvetica, sans-serif" font-size="8.5" font-weight="700" fill="#2563eb">FK</text>
+<text x="342" y="160" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">projectId</text>
+<text x="494" y="160" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">uuid</text>
+<text x="342" y="179" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">weekStart</text>
+<text x="494" y="179" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">date</text>
+<text x="342" y="198" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">weekEnd</text>
+<text x="494" y="198" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">date</text>
+<text x="342" y="217" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">status</text>
+<text x="494" y="217" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">ReportStatus</text>
+<text x="342" y="236" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">currentVersionNumber</text>
+<text x="494" y="236" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">int</text>
+<text x="342" y="255" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">notes</text>
+<text x="494" y="255" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">text?</text>
+<text x="342" y="274" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">createdAt</text>
+<text x="494" y="274" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">timestamp</text>
+<text x="342" y="293" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">updatedAt</text>
+<text x="494" y="293" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">timestamp</text>
+<line x1="307" y1="300" x2="505" y2="300" stroke="#e2e8f0" stroke-width="1"/>
+<text x="318" y="313" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" fill="#64748b">unique (userId, weekStart)</text>
+<text x="318" y="326" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" fill="#64748b">DRAFT | SUBMITTED |</text>
+<text x="318" y="339" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" fill="#64748b">NEEDS_CORRECTION | APPROVED</text>
+<rect x="306" y="387" width="200" height="269" rx="7" fill="#ffffff" stroke="#dcb684" stroke-width="1.4"/>
+<path d="M 306 394 a 7 7 0 0 1 7 -7 L 499 387 a 7 7 0 0 1 7 7 L 506 417 L 306 417 Z" fill="#fbeedd"/>
+<line x1="306" y1="417" x2="506" y2="417" stroke="#dcb684" stroke-width="1.4"/>
+<text x="318" y="407" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" fill="#6b4310">ReportVersion</text>
+<text x="318" y="431" font-family="Arial, Helvetica, sans-serif" font-size="8.5" font-weight="700" fill="#b45309">PK</text>
+<text x="342" y="431" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">id</text>
+<text x="494" y="431" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">uuid</text>
+<text x="318" y="450" font-family="Arial, Helvetica, sans-serif" font-size="8.5" font-weight="700" fill="#2563eb">FK</text>
+<text x="342" y="450" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">reportId</text>
+<text x="494" y="450" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">uuid</text>
+<text x="342" y="469" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">versionNumber</text>
+<text x="494" y="469" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">int</text>
+<text x="342" y="488" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">contentSnapshot</text>
+<text x="494" y="488" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">json</text>
+<text x="342" y="507" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">submittedAt</text>
+<text x="494" y="507" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">timestamp</text>
+<text x="342" y="526" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">reviewAction</text>
+<text x="494" y="526" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">ReviewAction?</text>
+<text x="342" y="545" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">reviewComment</text>
+<text x="494" y="545" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">text?</text>
+<text x="342" y="564" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">reviewedAt</text>
+<text x="494" y="564" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">timestamp?</text>
+<text x="318" y="583" font-family="Arial, Helvetica, sans-serif" font-size="8.5" font-weight="700" fill="#2563eb">FK</text>
+<text x="342" y="583" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">reviewerId</text>
+<text x="494" y="583" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">uuid?</text>
+<line x1="307" y1="590" x2="505" y2="590" stroke="#e2e8f0" stroke-width="1"/>
+<text x="318" y="603" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" fill="#64748b">unique (reportId, versionNumber)</text>
+<text x="318" y="616" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" fill="#64748b">one row per submission —</text>
+<text x="318" y="629" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" fill="#64748b">carries that version's</text>
+<text x="318" y="642" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" fill="#64748b">review decision + comment</text>
+<rect x="616" y="78" width="167" height="228" rx="7" fill="#ffffff" stroke="#8cc7b0" stroke-width="1.4"/>
+<path d="M 616 85 a 7 7 0 0 1 7 -7 L 776 78 a 7 7 0 0 1 7 7 L 783 108 L 616 108 Z" fill="#e3f3ec"/>
+<line x1="616" y1="108" x2="783" y2="108" stroke="#8cc7b0" stroke-width="1.4"/>
+<text x="628" y="98" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" fill="#14513c">TaskItem</text>
+<text x="628" y="122" font-family="Arial, Helvetica, sans-serif" font-size="8.5" font-weight="700" fill="#b45309">PK</text>
+<text x="652" y="122" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">id</text>
+<text x="771" y="122" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">uuid</text>
+<text x="628" y="141" font-family="Arial, Helvetica, sans-serif" font-size="8.5" font-weight="700" fill="#2563eb">FK</text>
+<text x="652" y="141" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">reportId</text>
+<text x="771" y="141" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">uuid</text>
+<text x="652" y="160" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">taskName</text>
+<text x="771" y="160" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">text</text>
+<text x="652" y="179" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">priority</text>
+<text x="771" y="179" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">TaskPriority</text>
+<text x="652" y="198" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">plannedPercent</text>
+<text x="771" y="198" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">int</text>
+<text x="652" y="217" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">actualPercent</text>
+<text x="771" y="217" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">int</text>
+<text x="652" y="236" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">status</text>
+<text x="771" y="236" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">TaskStatus</text>
+<text x="652" y="255" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">timePlannedHrs</text>
+<text x="771" y="255" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">float</text>
+<text x="652" y="274" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">timeSpentHrs</text>
+<text x="771" y="274" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">float</text>
+<text x="652" y="293" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">output</text>
+<text x="771" y="293" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">text?</text>
+<rect x="616" y="340" width="167" height="95" rx="7" fill="#ffffff" stroke="#8cc7b0" stroke-width="1.4"/>
+<path d="M 616 347 a 7 7 0 0 1 7 -7 L 776 340 a 7 7 0 0 1 7 7 L 783 370 L 616 370 Z" fill="#e3f3ec"/>
+<line x1="616" y1="370" x2="783" y2="370" stroke="#8cc7b0" stroke-width="1.4"/>
+<text x="628" y="360" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" fill="#14513c">PlannedTask</text>
+<text x="628" y="384" font-family="Arial, Helvetica, sans-serif" font-size="8.5" font-weight="700" fill="#b45309">PK</text>
+<text x="652" y="384" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">id</text>
+<text x="771" y="384" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">uuid</text>
+<text x="628" y="403" font-family="Arial, Helvetica, sans-serif" font-size="8.5" font-weight="700" fill="#2563eb">FK</text>
+<text x="652" y="403" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">reportId</text>
+<text x="771" y="403" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">uuid</text>
+<text x="652" y="422" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">description</text>
+<text x="771" y="422" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">text</text>
+<rect x="616" y="469" width="167" height="135" rx="7" fill="#ffffff" stroke="#8cc7b0" stroke-width="1.4"/>
+<path d="M 616 476 a 7 7 0 0 1 7 -7 L 776 469 a 7 7 0 0 1 7 7 L 783 499 L 616 499 Z" fill="#e3f3ec"/>
+<line x1="616" y1="499" x2="783" y2="499" stroke="#8cc7b0" stroke-width="1.4"/>
+<text x="628" y="489" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" fill="#14513c">Blocker</text>
+<text x="628" y="513" font-family="Arial, Helvetica, sans-serif" font-size="8.5" font-weight="700" fill="#b45309">PK</text>
+<text x="652" y="513" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">id</text>
+<text x="771" y="513" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">uuid</text>
+<text x="628" y="532" font-family="Arial, Helvetica, sans-serif" font-size="8.5" font-weight="700" fill="#2563eb">FK</text>
+<text x="652" y="532" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">reportId</text>
+<text x="771" y="532" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">uuid</text>
+<text x="652" y="551" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">description</text>
+<text x="771" y="551" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">text</text>
+<text x="652" y="570" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">isKey</text>
+<text x="771" y="570" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">boolean</text>
+<line x1="617" y1="577" x2="782" y2="577" stroke="#e2e8f0" stroke-width="1"/>
+<text x="628" y="590" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" fill="#64748b">isKey = the week's key issue</text>
+<rect x="616" y="638" width="167" height="135" rx="7" fill="#ffffff" stroke="#8cc7b0" stroke-width="1.4"/>
+<path d="M 616 645 a 7 7 0 0 1 7 -7 L 776 638 a 7 7 0 0 1 7 7 L 783 668 L 616 668 Z" fill="#e3f3ec"/>
+<line x1="616" y1="668" x2="783" y2="668" stroke="#8cc7b0" stroke-width="1.4"/>
+<text x="628" y="658" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" fill="#14513c">Achievement</text>
+<text x="628" y="682" font-family="Arial, Helvetica, sans-serif" font-size="8.5" font-weight="700" fill="#b45309">PK</text>
+<text x="652" y="682" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">id</text>
+<text x="771" y="682" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">uuid</text>
+<text x="628" y="701" font-family="Arial, Helvetica, sans-serif" font-size="8.5" font-weight="700" fill="#2563eb">FK</text>
+<text x="652" y="701" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">reportId</text>
+<text x="771" y="701" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">uuid</text>
+<text x="652" y="720" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">description</text>
+<text x="771" y="720" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">text</text>
+<text x="652" y="739" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">isKey</text>
+<text x="771" y="739" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">boolean</text>
+<line x1="617" y1="746" x2="782" y2="746" stroke="#e2e8f0" stroke-width="1"/>
+<text x="628" y="759" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" fill="#64748b">isKey = key achievement</text>
+<rect x="616" y="807" width="167" height="114" rx="7" fill="#ffffff" stroke="#8cc7b0" stroke-width="1.4"/>
+<path d="M 616 814 a 7 7 0 0 1 7 -7 L 776 807 a 7 7 0 0 1 7 7 L 783 837 L 616 837 Z" fill="#e3f3ec"/>
+<line x1="616" y1="837" x2="783" y2="837" stroke="#8cc7b0" stroke-width="1.4"/>
+<text x="628" y="827" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" fill="#14513c">HoursByType</text>
+<text x="628" y="851" font-family="Arial, Helvetica, sans-serif" font-size="8.5" font-weight="700" fill="#b45309">PK</text>
+<text x="652" y="851" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">id</text>
+<text x="771" y="851" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">uuid</text>
+<text x="628" y="870" font-family="Arial, Helvetica, sans-serif" font-size="8.5" font-weight="700" fill="#2563eb">FK</text>
+<text x="652" y="870" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">reportId</text>
+<text x="771" y="870" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">uuid</text>
+<text x="652" y="889" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">taskType</text>
+<text x="771" y="889" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">TaskType</text>
+<text x="652" y="908" font-family="Consolas, 'Courier New', monospace" font-size="11" fill="#1e293b">hours</text>
+<text x="771" y="908" text-anchor="end" font-family="Consolas, 'Courier New', monospace" font-size="10.5" fill="#94a3b8">float</text>
+<rect x="40" y="940" width="12" height="12" rx="3" fill="#e8effa" stroke="#9db8e0" stroke-width="1.2"/>
+<text x="58" y="949" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#475569">Identity &amp; access</text>
+<rect x="193.4" y="940" width="12" height="12" rx="3" fill="#dbe9fb" stroke="#5b8ed6" stroke-width="1.2"/>
+<text x="211.4" y="949" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#475569">Core report</text>
+<rect x="309.6" y="940" width="12" height="12" rx="3" fill="#e3f3ec" stroke="#8cc7b0" stroke-width="1.2"/>
+<text x="327.6" y="949" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#475569">Report content</text>
+<rect x="444.40000000000003" y="940" width="12" height="12" rx="3" fill="#fbeedd" stroke="#dcb684" stroke-width="1.2"/>
+<text x="462.40000000000003" y="949" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#475569">Review workflow</text>
+</svg>
