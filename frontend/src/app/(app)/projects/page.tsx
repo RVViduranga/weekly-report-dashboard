@@ -25,11 +25,10 @@ export default function ProjectsPage() {
   const [editName, setEditName] = useState("");
   const [editDescription, setEditDescription] = useState("");
 
-  async function load() {
-    const data = await api.get<{ projects: Project[] }>(
-      "/projects?includeInactive=true"
-    );
-    setProjects(data.projects);
+  function load() {
+    return api
+      .get<{ projects: Project[] }>("/projects?includeInactive=true")
+      .then((data) => setProjects(data.projects));
   }
 
   useEffect(() => {

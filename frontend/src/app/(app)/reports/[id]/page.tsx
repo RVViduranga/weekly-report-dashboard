@@ -22,15 +22,14 @@ export default function ReportDetailPage() {
   const [submitting, setSubmitting] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
 
-  async function load() {
-    const [{ report: loaded }, { versions: loadedVersions }] =
-      await Promise.all([
-        api.get<{ report: Report }>(`/reports/${reportId}`),
-        api.get<{ versions: ReportVersion[] }>(`/reports/${reportId}/versions`),
-      ]);
-
-    setReport(loaded);
-    setVersions(loadedVersions);
+  function load() {
+    return Promise.all([
+      api.get<{ report: Report }>(`/reports/${reportId}`),
+      api.get<{ versions: ReportVersion[] }>(`/reports/${reportId}/versions`),
+    ]).then(([{ report: loaded }, { versions: loadedVersions }]) => {
+      setReport(loaded);
+      setVersions(loadedVersions);
+    });
   }
 
   useEffect(() => {

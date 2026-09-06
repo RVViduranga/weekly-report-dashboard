@@ -35,14 +35,21 @@ const STATUS_FILTERS: { value: ReportStatus | ""; label: string }[] = [
 const selectClass =
   "rounded-md border border-neutral-300 bg-transparent px-2.5 py-1.5 text-sm dark:border-neutral-700";
 
+interface LoadedPage {
+  query: string;
+  data: ReportListResponse | null;
+  error: string | null;
+}
+
+const NOTHING_LOADED: LoadedPage = { query: "", data: null, error: null };
+
 export default function TeamReportsPage() {
   const { isManager } = useRequireManager();
 
-  const [data, setData] = useState<ReportListResponse | null>(null);
   const [members, setMembers] = useState<UserRow[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [filterError, setFilterError] = useState<string | null>(null);
+  const [loaded, setLoaded] = useState<LoadedPage>(NOTHING_LOADED);
 
   const [page, setPage] = useState(1);
   const [userId, setUserId] = useState("");
@@ -50,6 +57,19 @@ export default function TeamReportsPage() {
   const [status, setStatus] = useState<ReportStatus | "">("");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
+
+  const params = new URLSearchParams({ page: String(page), pageSize: "15" });
+  if (userId) params.set("userId", userId);
+  if (projectId) params.set("projectId", projectId);
+  if (status) params.set("status", status);
+  if (from) params.set("from", from);
+  if (to) params.set("to", to);
+  const query = params.toString();
+
+  // Nobody has to remember to flip a loading flag: the page is loading for as
+  // long as what we are holding was fetched for a different set of filters.
+  const loading = loaded.query !== query;
+  const { data, error } = loaded;
 
   useEffect(() => {
     if (!isManager) return;
@@ -62,43 +82,34 @@ export default function TeamReportsPage() {
         setMembers(userData.users);
         setProjects(projectData.projects);
       })
-      .catch(() => setError("Could not load the filter options"));
+      .catch(() => setFilterError("Could not load the filter options"));
   }, [isManager]);
 
   useEffect(() => {
     if (!isManager) return;
 
     let active = true;
-    setLoading(true);
-    setError(null);
-
-    const params = new URLSearchParams({ page: String(page), pageSize: "15" });
-    if (userId) params.set("userId", userId);
-    if (projectId) params.set("projectId", projectId);
-    if (status) params.set("status", status);
-    if (from) params.set("from", from);
-    if (to) params.set("to", to);
 
     api
-      .get<ReportListResponse>(`/reports?${params.toString()}`)
+      .get<ReportListResponse>(`/reports?${query}`)
       .then((result) => {
-        if (active) setData(result);
+        if (active) setLoaded({ query, data: result, error: null });
       })
       .catch((err) => {
         if (active) {
-          setError(
-            err instanceof ApiError ? err.message : "Could not load reports"
-          );
+          setLoaded({
+            query,
+            data: null,
+            error:
+              err instanceof ApiError ? err.message : "Could not load reports",
+          });
         }
-      })
-      .finally(() => {
-        if (active) setLoading(false);
       });
 
     return () => {
       active = false;
     };
-  }, [isManager, page, userId, projectId, status, from, to]);
+  }, [isManager, query]);
 
   function resetFilters() {
     setUserId("");
@@ -214,6 +225,12 @@ export default function TeamReportsPage() {
           </button>
         )}
       </div>
+
+      {filterError && (
+        <p className="mt-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
+          {filterError}
+        </p>
+      )}
 
       {data && (
         <p className="mt-4 text-sm text-neutral-500">

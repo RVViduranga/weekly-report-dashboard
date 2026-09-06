@@ -4,8 +4,6 @@ A small internal tool where team members file structured weekly reports, manager
 review them and send them back for correction when needed, and the whole team's
 work rolls up into a dashboard.
 
-**Live demo:** _(add your deployed URL here)_
-
 ## What it does
 
 - **Team members** create a weekly report from a fixed template — tasks completed

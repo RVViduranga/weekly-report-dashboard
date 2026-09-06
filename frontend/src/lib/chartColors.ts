@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 /**
  * Palette validated for colour-vision deficiency and 3:1 contrast against both
@@ -35,20 +35,29 @@ const DARK = {
 
 export type ChartColors = typeof LIGHT;
 
+const DARK_MODE_QUERY = "(prefers-color-scheme: dark)";
+
+function subscribeToColorScheme(onChange: () => void): () => void {
+  const query = window.matchMedia(DARK_MODE_QUERY);
+  query.addEventListener("change", onChange);
+  return () => query.removeEventListener("change", onChange);
+}
+
+function isDarkInBrowser(): boolean {
+  return window.matchMedia(DARK_MODE_QUERY).matches;
+}
+
+/** The server has no colour scheme to read, so it renders the light palette. */
+function isDarkOnServer(): boolean {
+  return false;
+}
+
 export function useChartColors(): ChartColors {
-  const [isDark, setIsDark] = useState(false);
-
-  useEffect(() => {
-    const query = window.matchMedia("(prefers-color-scheme: dark)");
-    setIsDark(query.matches);
-
-    function handleChange(event: MediaQueryListEvent) {
-      setIsDark(event.matches);
-    }
-
-    query.addEventListener("change", handleChange);
-    return () => query.removeEventListener("change", handleChange);
-  }, []);
+  const isDark = useSyncExternalStore(
+    subscribeToColorScheme,
+    isDarkInBrowser,
+    isDarkOnServer
+  );
 
   return isDark ? DARK : LIGHT;
 }

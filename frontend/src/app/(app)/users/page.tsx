@@ -31,9 +31,10 @@ export default function UsersPage() {
   const [role, setRole] = useState<Role>("TEAM_MEMBER");
   const [creating, setCreating] = useState(false);
 
-  async function load() {
-    const data = await api.get<{ users: UserRow[] }>("/users");
-    setUsers(data.users);
+  function load() {
+    return api
+      .get<{ users: UserRow[] }>("/users")
+      .then((data) => setUsers(data.users));
   }
 
   useEffect(() => {

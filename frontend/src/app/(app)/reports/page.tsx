@@ -24,43 +24,53 @@ function totalHours(report: ReportListItem): number {
   return report.hoursByType.reduce((sum, entry) => sum + entry.hours, 0);
 }
 
+interface LoadedPage {
+  query: string;
+  data: ReportListResponse | null;
+  error: string | null;
+}
+
+const NOTHING_LOADED: LoadedPage = { query: "", data: null, error: null };
+
 export default function MyReportsPage() {
-  const [data, setData] = useState<ReportListResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState<ReportStatus | "">("");
+  const [loaded, setLoaded] = useState<LoadedPage>(NOTHING_LOADED);
+
+  const params = new URLSearchParams({ page: String(page), pageSize: "10" });
+  if (status) params.set("status", status);
+  const query = params.toString();
+
+  // Nobody has to remember to flip a loading flag: the page is loading for as
+  // long as what we are holding was fetched for a different query.
+  const loading = loaded.query !== query;
+  const { data, error } = loaded;
 
   useEffect(() => {
     let active = true;
-    setLoading(true);
-    setError(null);
-
-    const params = new URLSearchParams({ page: String(page), pageSize: "10" });
-    if (status) params.set("status", status);
 
     api
-      .get<ReportListResponse>(`/reports/mine?${params.toString()}`)
+      .get<ReportListResponse>(`/reports/mine?${query}`)
       .then((result) => {
-        if (active) setData(result);
+        if (active) setLoaded({ query, data: result, error: null });
       })
       .catch((err) => {
         if (active) {
-          setError(
-            err instanceof ApiError
-              ? err.message
-              : "Could not load your reports",
-          );
+          setLoaded({
+            query,
+            data: null,
+            error:
+              err instanceof ApiError
+                ? err.message
+                : "Could not load your reports",
+          });
         }
-      })
-      .finally(() => {
-        if (active) setLoading(false);
       });
 
     return () => {
       active = false;
     };
-  }, [page, status]);
+  }, [query]);
 
   return (
     <div>

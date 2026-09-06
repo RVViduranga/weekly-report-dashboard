@@ -128,10 +128,7 @@ export default function DashboardPage() {
   const isManager = user?.role === "MANAGER";
 
   useEffect(() => {
-    if (!isManager) {
-      setLoading(false);
-      return;
-    }
+    if (!isManager) return;
 
     let active = true;
 

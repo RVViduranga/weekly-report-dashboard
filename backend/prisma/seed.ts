@@ -108,7 +108,9 @@ const REVIEW_COMMENTS = [
 ];
 
 const PRIORITIES = ["LOW", "MEDIUM", "HIGH"] as const;
-const TASK_STATUSES = ["COMPLETED", "IN_PROGRESS", "BLOCKED"] as const;
+// A task that is not at 100% cannot be "completed", so unfinished rows draw
+// from their own list.
+const UNFINISHED_STATUSES = ["IN_PROGRESS", "BLOCKED"] as const;
 const TASK_TYPES = ["DEVELOPMENT", "TESTING", "MEETINGS", "DOCUMENTATION"] as const;
 
 async function wipe() {
@@ -187,18 +189,20 @@ async function main() {
       const taskCount = 2 + Math.floor(rand() * 3);
       const taskItems = [];
       for (let t = 0; t < taskCount; t++) {
-        const planned = 100;
-        const actual = 60 + Math.floor(rand() * 41);
+        // Decide whether the task landed first, then pick a percentage that
+        // agrees with it - a row cannot read "Completed" at 84%.
+        const finished = rand() < 0.65;
         const timePlanned = 4 + Math.floor(rand() * 9);
         taskItems.push({
           taskName: pool[t % pool.length],
           priority: PRIORITIES[Math.floor(rand() * PRIORITIES.length)],
-          plannedPercent: planned,
-          actualPercent: actual,
-          status:
-            actual === 100
-              ? ("COMPLETED" as const)
-              : TASK_STATUSES[Math.floor(rand() * TASK_STATUSES.length)],
+          plannedPercent: 100,
+          actualPercent: finished ? 100 : 60 + Math.floor(rand() * 36),
+          status: finished
+            ? ("COMPLETED" as const)
+            : UNFINISHED_STATUSES[
+                Math.floor(rand() * UNFINISHED_STATUSES.length)
+              ],
           timePlannedHrs: timePlanned,
           timeSpentHrs: timePlanned + Math.floor(rand() * 5) - 1,
           output: `PR #${100 + m * 20 + w * 3 + t}`,
