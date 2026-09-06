@@ -263,7 +263,12 @@ async function main() {
         hoursByType,
       } as unknown as Prisma.InputJsonValue;
 
+      // Most people file within the week; a few file after it closed, so the
+      // dashboard's on-time / late split has something real to show.
+      const filedLate = (m + w) % 5 === 0;
       const submittedAt = weekEndFor(w);
+      if (filedLate) submittedAt.setUTCDate(submittedAt.getUTCDate() + 2);
+
       const reviewer = managers[m % managers.length];
 
       for (let v = 1; v <= versionCount; v++) {

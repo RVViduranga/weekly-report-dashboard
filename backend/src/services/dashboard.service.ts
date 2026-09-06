@@ -51,9 +51,18 @@ export async function getDashboard(weekStartInput?: Date) {
     }),
 
     // This week's reports, to work out who has filed and who has not.
+    // The first version's submittedAt is when they actually filed, which is
+    // what decides whether it was on time.
     prisma.report.findMany({
       where: { weekStart },
-      select: { userId: true, status: true },
+      select: {
+        userId: true,
+        status: true,
+        versions: {
+          where: { versionNumber: 1 },
+          select: { submittedAt: true },
+        },
+      },
     }),
 
     prisma.report.count({ where: { status: "NEEDS_CORRECTION" } }),
@@ -113,24 +122,44 @@ export async function getDashboard(weekStartInput?: Date) {
   ]);
 
   // --- Summary -------------------------------------------------------------
+  // The deadline is the end of the last day of the week, so a report filed on
+  // the Sunday still counts as on time.
+  const deadline = new Date(weekEnd);
+  deadline.setUTCDate(deadline.getUTCDate() + 1);
+
   const filedThisWeek = new Map(
-    weekReports.map((report) => [report.userId, report.status])
+    weekReports.map((report) => [report.userId, report])
   );
 
   const compliance = { ...emptyStatusCounts(), NOT_STARTED: 0 };
+  let onTime = 0;
+  let late = 0;
 
   for (const member of teamMembers) {
-    const status = filedThisWeek.get(member.id);
-    if (status) compliance[status] += 1;
-    else compliance.NOT_STARTED += 1;
+    const report = filedThisWeek.get(member.id);
+
+    if (!report) {
+      compliance.NOT_STARTED += 1;
+      continue;
+    }
+
+    compliance[report.status] += 1;
+
+    const firstSubmittedAt = report.versions[0]?.submittedAt;
+    if (!firstSubmittedAt) continue; // still a draft - not filed at all
+    if (firstSubmittedAt > deadline) late += 1;
+    else onTime += 1;
   }
 
-  const submittedThisWeek =
-    compliance.SUBMITTED + compliance.NEEDS_CORRECTION + compliance.APPROVED;
+  const submittedThisWeek = onTime + late;
+  const pending = teamMembers.length - submittedThisWeek;
 
   const summary = {
     teamSize: teamMembers.length,
     submittedThisWeek,
+    onTime,
+    late,
+    pending,
     complianceRate:
       teamMembers.length === 0
         ? 0

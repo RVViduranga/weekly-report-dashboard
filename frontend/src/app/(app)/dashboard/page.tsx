@@ -27,6 +27,9 @@ interface DashboardData {
   summary: {
     teamSize: number;
     submittedThisWeek: number;
+    onTime: number;
+    late: number;
+    pending: number;
     complianceRate: number;
     needsCorrection: number;
     openBlockers: number;
@@ -201,7 +204,14 @@ export default function DashboardPage() {
   }
 
   const { summary } = data;
-  const pending = summary.teamSize - summary.submittedThisWeek;
+
+  const complianceHint = [
+    `${summary.onTime} on time`,
+    summary.late > 0 ? `${summary.late} late` : null,
+    summary.pending > 0 ? `${summary.pending} pending` : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     <div className="flex flex-col gap-6">
@@ -216,12 +226,16 @@ export default function DashboardPage() {
         <StatTile
           label="Submitted this week"
           value={`${summary.submittedThisWeek} / ${summary.teamSize}`}
-          hint={pending > 0 ? `${pending} still pending` : "Everyone has filed"}
+          hint={
+            summary.pending > 0
+              ? `${summary.pending} still pending`
+              : "Everyone has filed"
+          }
         />
         <StatTile
           label="Compliance rate"
           value={`${summary.complianceRate}%`}
-          hint="Filed vs expected this week"
+          hint={complianceHint}
         />
         <StatTile
           label="Needs correction"
