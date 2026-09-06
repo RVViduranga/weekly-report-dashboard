@@ -441,8 +441,14 @@ export default function DashboardPage() {
               />
               <Tooltip contentStyle={tooltipStyle} cursor={false} />
               <Legend
-                wrapperStyle={{ fontSize: 11, color: colors.axis }}
+                wrapperStyle={{ fontSize: 11 }}
                 iconType="circle"
+                // Recharts paints the label in the series colour by default.
+                // The dot already carries the identity, so the words wear a
+                // text colour and stay readable.
+                formatter={(value) => (
+                  <span style={{ color: colors.axis }}>{value}</span>
+                )}
               />
               {STATUS_KEYS.map((status) => (
                 <Bar
