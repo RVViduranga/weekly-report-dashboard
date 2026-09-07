@@ -158,42 +158,47 @@ Open **http://localhost:3200**.
 
 ## Deploying
 
-`render.yaml` at the repository root defines both services as a Render
-Blueprint. The database stays on Neon - only its connection strings are pasted
-into Render, never committed.
+Two projects from this one repository, both on Vercel's free plan, with the
+database staying on Neon. Vercel is what this is set up for because it asks for
+no payment card; `render.yaml` is also in the repository and works the same way
+if you would rather use Render, which does ask for one before it runs anything.
 
-**New Blueprint** on Render, point it at this repository, and it picks the file
-up. Building a service by hand instead works too, as long as the build command
-carries `--include=dev`: Render sets `NODE_ENV=production`, npm then skips
-devDependencies, and both builds need tooling that lives there - `typescript`
-for the API, `tailwindcss` and `@tailwindcss/postcss` for the web app. Render will ask for the four values marked `sync: false`. Two of them are
-the Neon strings from `backend/.env`. The other two are circular - each service
-needs the other's URL - so leave them blank on the first deploy and fill them in
-once both services have one:
+**The API.** New project, **Root Directory `backend`**, framework preset
+*Other*. `backend/vercel.json` rewrites every path to `api/index.ts`, which
+exports the same Express app `src/index.ts` listens with - so the routing,
+middleware and validation are the deployed code, not a second copy of it. Set:
 
-| Service | Variable | Value |
-|---|---|---|
-| `weekly-reports-api` | `FRONTEND_URL` | `https://weekly-reports-web.onrender.com` |
-| `weekly-reports-web` | `NEXT_PUBLIC_API_URL` | `https://weekly-reports-api.onrender.com/api` |
+| Variable | Value |
+|---|---|
+| `DATABASE_URL` | the pooled Neon string, the one with `-pooler` |
+| `DIRECT_URL` | the direct Neon string, without `-pooler` |
+| `JWT_SECRET` | a fresh random string |
+| `FRONTEND_URL` | the web project's URL, once it has one |
 
-Use the URLs Render actually assigned - it appends a suffix when a name is
-already taken.
+**The web app.** New project, **Root Directory `frontend`**. Vercel detects
+Next.js on its own. Set:
 
-Then **redeploy the web service**, not just restart it. Next.js bakes
-`NEXT_PUBLIC_*` into the bundle at build time, so a restart keeps the old value
-and every request still goes to `localhost:4000`.
+| Variable | Value |
+|---|---|
+| `BACKEND_ORIGIN` | the API project's URL, no trailing slash |
+| `NEXT_PUBLIC_API_URL` | `/api` |
 
-A few things worth knowing before you rely on it:
+That pair is what keeps this simple. `BACKEND_ORIGIN` turns on a rewrite in
+`next.config.ts`, so the browser only ever talks to the web app's own `/api`
+path and Next forwards it to the API behind the scenes. The session cookie
+stays first-party, there is no cross-site request to configure, and a reviewer
+only needs one URL.
 
-- **Render asks to verify a payment card before it will run anything, including
-  on the free plan.** No card, no deploy - that is an account gate, not
-  something configuration can work around.
-- **Free services sleep after 15 minutes idle** and take the better part of a
-  minute to wake. The first page load after a quiet spell is slow. Open the app
-  and let it wake before demonstrating it to anyone.
-- `FRONTEND_URL` accepts a comma-separated list, so the deployed origin and
-  `http://localhost:3200` can both be allowed while you are still working
-  locally.
+Two things that will bite otherwise:
+
+- `NEXT_PUBLIC_*` is baked into the bundle at build time, so the web project has
+  to be **redeployed** after those values change, not restarted.
+- The first request after a quiet spell pays a cold start while the function
+  wakes and Prisma reconnects. Open the app once before demonstrating it.
+
+Locally nothing above applies: `BACKEND_ORIGIN` is unset, no rewrite is added,
+and the frontend calls `http://localhost:4000/api` through
+`NEXT_PUBLIC_API_URL` exactly as before.
 
 ## Demo accounts
 

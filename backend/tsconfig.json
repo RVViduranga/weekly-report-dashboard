@@ -16,7 +16,8 @@
   },
   "include": [
     "src",
-    "prisma"
+    "prisma",
+    "api"
   ],
   "exclude": [
     "node_modules",
