@@ -14,10 +14,12 @@ services:
     plan: free
     region: singapore
     healthCheckPath: /api/health
-    # `postinstall` runs `prisma generate`; `migrate deploy` applies any
-    # migration the database has not seen yet and is a no-op when it is
-    # already current.
-    buildCommand: npm install && npx prisma migrate deploy && npm run build
+    # --include=dev is not optional. Render sets NODE_ENV=production, which
+    # makes npm skip devDependencies - and typescript lives there, so `tsc`
+    # would not exist. `postinstall` runs `prisma generate`; `migrate deploy`
+    # applies any migration the database has not seen and is a no-op when it
+    # is already current.
+    buildCommand: npm install --include=dev && npx prisma migrate deploy && npm run build
     startCommand: npm start
     envVars:
       - key: NODE_ENV
@@ -41,7 +43,9 @@ services:
     rootDir: frontend
     plan: free
     region: singapore
-    buildCommand: npm install && npm run build
+    # Same reason as the API: tailwindcss, @tailwindcss/postcss and typescript
+    # are devDependencies, and `next build` needs all three.
+    buildCommand: npm install --include=dev && npm run build
     startCommand: npm start
     envVars:
       # Next.js bakes NEXT_PUBLIC_* into the bundle at build time, so this

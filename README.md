@@ -163,7 +163,10 @@ Blueprint. The database stays on Neon - only its connection strings are pasted
 into Render, never committed.
 
 **New Blueprint** on Render, point it at this repository, and it picks the file
-up. Render will ask for the four values marked `sync: false`. Two of them are
+up. Building a service by hand instead works too, as long as the build command
+carries `--include=dev`: Render sets `NODE_ENV=production`, npm then skips
+devDependencies, and both builds need tooling that lives there - `typescript`
+for the API, `tailwindcss` and `@tailwindcss/postcss` for the web app. Render will ask for the four values marked `sync: false`. Two of them are
 the Neon strings from `backend/.env`. The other two are circular - each service
 needs the other's URL - so leave them blank on the first deploy and fill them in
 once both services have one:
