@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { ApiError } from "@/lib/api";
 import Button from "@/components/ui/Button";
+import ProductMark from "@/components/ui/ProductMark";
 import ThemeToggle from "@/components/ThemeToggle";
 import Field, {
   controlClass,
@@ -73,8 +74,13 @@ export default function RegisterPage() {
       </div>
 
       <div className="w-full max-w-sm">
-        <div className="mb-7 text-center">
-          <h1 className="text-xl font-semibold tracking-tight">
+        <div className="mb-8 flex flex-col items-center text-center">
+          <span className="flex items-center gap-2.5 text-sm font-semibold tracking-tight">
+            <ProductMark />
+            Weekly Reports
+          </span>
+
+          <h1 className="mt-6 text-2xl font-semibold tracking-tight">
             Create an account
           </h1>
           <p className="mt-1 text-sm text-ink-2">

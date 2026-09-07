@@ -5,25 +5,8 @@ import { usePathname } from "next/navigation";
 import { Plus, X } from "lucide-react";
 import { isActive, navigationFor } from "@/lib/navigation";
 import { buttonClasses } from "@/components/ui/Button";
+import ProductMark from "@/components/ui/ProductMark";
 import type { Role } from "@/types";
-
-export function ProductMark() {
-  return (
-    <span
-      aria-hidden="true"
-      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent text-on-accent"
-    >
-      <svg width="15" height="15" viewBox="0 0 20 20" fill="none">
-        <path
-          d="M4 14.5V9m4 5.5v-9m4 9V11m4 3.5V6.5"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-      </svg>
-    </span>
-  );
-}
 
 export default function Sidebar({
   role,
