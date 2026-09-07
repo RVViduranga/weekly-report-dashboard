@@ -1,0 +1,50 @@
+# Render Blueprint - two web services from one repository.
+#
+# The database is not defined here: it lives on Neon, and its connection
+# strings are pasted into the dashboard as secrets rather than committed.
+#
+# After the first deploy both services need one value each that only exists
+# once the other has a URL. See "Deploying" in README.md.
+
+services:
+  - type: web
+    name: weekly-reports-api
+    runtime: node
+    rootDir: backend
+    plan: free
+    region: singapore
+    healthCheckPath: /api/health
+    # `postinstall` runs `prisma generate`; `migrate deploy` applies any
+    # migration the database has not seen yet and is a no-op when it is
+    # already current.
+    buildCommand: npm install && npx prisma migrate deploy && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Pooled Neon connection - the running app uses this one.
+      - key: DATABASE_URL
+        sync: false
+      # Direct Neon connection, no -pooler in the host. Migrations need it.
+      - key: DIRECT_URL
+        sync: false
+      # Render generates this once and keeps it. Rotating it signs everyone out.
+      - key: JWT_SECRET
+        generateValue: true
+      # The web service's origin, with the scheme: https://<name>.onrender.com
+      - key: FRONTEND_URL
+        sync: false
+
+  - type: web
+    name: weekly-reports-web
+    runtime: node
+    rootDir: frontend
+    plan: free
+    region: singapore
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      # Next.js bakes NEXT_PUBLIC_* into the bundle at build time, so this
+      # service must be redeployed - not just restarted - after it changes.
+      - key: NEXT_PUBLIC_API_URL
+        sync: false

@@ -156,6 +156,42 @@ Open **http://localhost:3200**.
 > reserve the 3000 range. If you change it, update `FRONTEND_URL` in
 > `backend/.env` to match, or the browser will block the requests as cross-origin.
 
+## Deploying
+
+`render.yaml` at the repository root defines both services as a Render
+Blueprint. The database stays on Neon - only its connection strings are pasted
+into Render, never committed.
+
+**New Blueprint** on Render, point it at this repository, and it picks the file
+up. Render will ask for the four values marked `sync: false`. Two of them are
+the Neon strings from `backend/.env`. The other two are circular - each service
+needs the other's URL - so leave them blank on the first deploy and fill them in
+once both services have one:
+
+| Service | Variable | Value |
+|---|---|---|
+| `weekly-reports-api` | `FRONTEND_URL` | `https://weekly-reports-web.onrender.com` |
+| `weekly-reports-web` | `NEXT_PUBLIC_API_URL` | `https://weekly-reports-api.onrender.com/api` |
+
+Use the URLs Render actually assigned - it appends a suffix when a name is
+already taken.
+
+Then **redeploy the web service**, not just restart it. Next.js bakes
+`NEXT_PUBLIC_*` into the bundle at build time, so a restart keeps the old value
+and every request still goes to `localhost:4000`.
+
+A few things worth knowing before you rely on it:
+
+- **Render asks to verify a payment card before it will run anything, including
+  on the free plan.** No card, no deploy - that is an account gate, not
+  something configuration can work around.
+- **Free services sleep after 15 minutes idle** and take the better part of a
+  minute to wake. The first page load after a quiet spell is slow. Open the app
+  and let it wake before demonstrating it to anyone.
+- `FRONTEND_URL` accepts a comma-separated list, so the deployed origin and
+  `http://localhost:3200` can both be allowed while you are still working
+  locally.
+
 ## Demo accounts
 
 The seed script creates 2 managers and 5 team members. **Password for all of them
