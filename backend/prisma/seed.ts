@@ -3,8 +3,23 @@ import { prisma } from "../src/lib/prisma";
 import { hashPassword } from "../src/lib/password";
 import { ReportStatus, Prisma } from "../src/generated/prisma/client";
 
-// Most recent Monday used as week 0; earlier weeks count backwards from here.
-const ANCHOR_MONDAY = new Date(Date.UTC(2026, 7, 31));
+const NOW = new Date();
+
+/**
+ * Week 0 is the Monday of the week the seed is run in, so the demo data always
+ * lands on the week the dashboard is reporting on. Anchoring it to a fixed date
+ * meant the dashboard read 0/5 the moment that week rolled over.
+ */
+function mondayOfThisWeek(): Date {
+  const d = new Date(
+    Date.UTC(NOW.getUTCFullYear(), NOW.getUTCMonth(), NOW.getUTCDate())
+  );
+  d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7));
+  return d;
+}
+
+// Week 0; earlier weeks count backwards from here.
+const ANCHOR_MONDAY = mondayOfThisWeek();
 
 function weekStartFor(index: number): Date {
   const d = new Date(ANCHOR_MONDAY);
@@ -268,10 +283,16 @@ async function main() {
       } as unknown as Prisma.InputJsonValue;
 
       // Most people file within the week; a few file after it closed, so the
-      // dashboard's on-time / late split has something real to show.
+      // dashboard's on-time / late split has something real to show. An on-time
+      // filing never carries a timestamp later than right now - the current
+      // week has not reached its Sunday yet.
       const filedLate = (m + w) % 5 === 0;
       const submittedAt = weekEndFor(w);
-      if (filedLate) submittedAt.setUTCDate(submittedAt.getUTCDate() + 2);
+      if (filedLate) {
+        submittedAt.setUTCDate(submittedAt.getUTCDate() + 2);
+      } else if (submittedAt > NOW) {
+        submittedAt.setTime(NOW.getTime());
+      }
 
       const reviewer = managers[m % managers.length];
 
@@ -312,6 +333,9 @@ async function main() {
   console.log(`  ${managers.length} managers, ${members.length} team members`);
   console.log(`  ${projects.length} projects (${activeProjects.length} active)`);
   console.log(`  ${reportCount} reports, ${versionRows.length} report versions`);
+  console.log(
+    `  this week on the dashboard: ${weekStartFor(0).toISOString().slice(0, 10)} to ${weekEndFor(0).toISOString().slice(0, 10)}`
+  );
   console.log("");
   console.log("Login with any of these (password: password123):");
   for (const u of [...managers, ...members]) {
