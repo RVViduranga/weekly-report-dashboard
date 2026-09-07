@@ -1,4 +1,5 @@
 import StatusBadge from "@/components/StatusBadge";
+import Avatar from "@/components/ui/Avatar";
 import Card, { CardHeader } from "@/components/ui/Card";
 import { formatWeekRange } from "@/lib/format";
 import {
@@ -24,6 +25,17 @@ function KeyChip({ label }: { label: string }) {
     <span className="rounded-full bg-accent-soft px-2 py-0.5 text-[11px] font-medium text-accent-ink">
       {label}
     </span>
+  );
+}
+
+function Meta({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <p className="text-[11px] font-medium tracking-wider text-ink-3 uppercase">
+        {label}
+      </p>
+      <div className="mt-1 text-sm font-medium">{children}</div>
+    </div>
   );
 }
 
@@ -64,21 +76,37 @@ export default function ReportDetail({ report }: { report: Report }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <header className="pb-2">
-        <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {formatWeekRange(report.weekStart, report.weekEnd)}
-          </h1>
+      <Card className="p-5">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-medium tracking-wider text-ink-3 uppercase">
+              Weekly report
+            </p>
+            <h1 className="mt-1 text-2xl font-semibold tracking-tight">
+              {formatWeekRange(report.weekStart, report.weekEnd)}
+            </h1>
+          </div>
+
           <StatusBadge status={report.status} />
         </div>
-        <p className="mt-1.5 text-sm text-ink-2">
-          <span className="font-medium text-ink">{report.user.name}</span>
-          {" · "}
-          {report.project.name}
-          {report.currentVersionNumber > 0 &&
-            ` · version ${report.currentVersionNumber}`}
-        </p>
-      </header>
+
+        <div className="mt-5 grid gap-4 border-t border-line-soft pt-4 sm:grid-cols-3">
+          <Meta label="Employee">
+            <span className="flex items-center gap-2">
+              <Avatar name={report.user.name} size="sm" />
+              {report.user.name}
+            </span>
+          </Meta>
+
+          <Meta label="Project">{report.project.name}</Meta>
+
+          <Meta label="Version">
+            {report.currentVersionNumber > 0
+              ? `Version ${report.currentVersionNumber}`
+              : "Not submitted yet"}
+          </Meta>
+        </div>
+      </Card>
 
       <Card>
         <CardHeader
@@ -101,7 +129,7 @@ export default function ReportDetail({ report }: { report: Report }) {
                   <th className="px-3 py-2.5 text-right font-medium">
                     Hrs planned / spent
                   </th>
-                  <th className="px-5 py-2.5 font-medium">Output</th>
+                  <th className="px-5 py-2.5 font-medium">Deliverable</th>
                 </tr>
               </thead>
               <tbody>

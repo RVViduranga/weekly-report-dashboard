@@ -251,12 +251,18 @@ not disturb the demo data.
 
 ## Interface
 
+A left sidebar, a context header, and one content column. `AppShell` holds the
+two together: the sidebar is the same component on a laptop and inside the mobile
+drawer, and the navigation it renders is role-based - the Manage group only
+exists for a manager. Nothing in it points at a page that was not built.
+
 One token layer, two themes. `src/app/globals.css` defines a semantic palette -
 surfaces, lines, ink, one accent, four status colours - once for light and once
 for dark. Components name the token, never the colour, so there is no `dark:`
 variant anywhere in the markup and the two themes cannot drift apart.
 `src/components/ui/` holds the primitives the rest is built from: button, card,
-table shell, form field, skeleton, empty state.
+table, form field, dropdown menu, dialog, toast, avatar, badge, skeleton and
+empty state.
 
 The theme follows the system by default, and the toggle in the header overrides
 it. The choice is stored in `localStorage` and re-applied by a small inline
@@ -276,6 +282,12 @@ Four things that are easy to skip, and were not:
 - **One focus treatment**, defined once, for everything the keyboard can reach.
 - **Wide tables scroll inside their own card**, so no page scrolls sideways on a
   phone.
+- **Reviewing is deliberate.** Approving and sending back both go through a
+  confirmation that names the consequence, because a stray click on a review
+  page changes someone else's record.
+- **The bell is real.** It counts what is actually waiting - reports to review
+  for a manager, reports sent back for a team member - from the reports
+  themselves rather than a notifications table nobody wrote.
 
 ## Database
 

@@ -394,7 +394,7 @@ export default function ReportForm({
       {formError && <Notice>{formError}</Notice>}
 
       {/* The form is long, so its actions follow you down the page. */}
-      <div className="sticky bottom-0 -mx-4 mt-2 flex flex-wrap items-center gap-3 border-t border-line bg-surface/85 px-4 py-3 backdrop-blur-md sm:-mx-6 sm:px-6">
+      <div className="sticky bottom-4 z-10 mt-2 flex flex-wrap items-center gap-3 rounded-xl border border-line bg-surface/90 px-4 py-3 shadow-raised backdrop-blur-md">
         <Button type="submit" variant="secondary" busy={busy === "draft"}>
           {busy === "draft" ? "Saving" : "Save draft"}
         </Button>

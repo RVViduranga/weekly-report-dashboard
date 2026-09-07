@@ -15,16 +15,24 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import {
+  ArrowRight,
+  CircleAlert,
+  FileText,
+  OctagonAlert,
+  TrendingUp,
+  type LucideIcon,
+} from "lucide-react";
 import { api, ApiError } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { useChartColors } from "@/lib/chartColors";
 import { formatDateTime, formatWeekRange } from "@/lib/format";
 import { TASK_TYPE_LABELS } from "@/lib/reportForm";
 import Card, { CardHeader } from "@/components/ui/Card";
-import PageHeader from "@/components/ui/PageHeader";
+import Avatar from "@/components/ui/Avatar";
 import { buttonClasses } from "@/components/ui/Button";
 import { Notice } from "@/components/ui/Field";
-import Skeleton, { SkeletonCard } from "@/components/ui/Skeleton";
+import Skeleton from "@/components/ui/Skeleton";
 import type { ReportStatus, TaskType } from "@/types";
 
 interface DashboardData {
@@ -86,6 +94,17 @@ function shortWeek(iso: string): string {
   });
 }
 
+function greeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 18) return "Good afternoon";
+  return "Good evening";
+}
+
+function firstName(name: string): string {
+  return name.split(" ")[0] ?? name;
+}
+
 /** The Monday-to-Sunday window a member is being asked to report on. */
 function currentWeek(): { start: string; end: string } {
   const now = new Date();
@@ -106,35 +125,29 @@ interface Segment {
   className: string;
 }
 
-/**
- * A headline number with the shape of the data underneath it - a filled bar is
- * quicker to read than a second sentence.
- */
-function StatTile({
+function Kpi({
+  icon: Icon,
   label,
   value,
   hint,
   segments,
-  emphasis = false,
 }: {
+  icon: LucideIcon;
   label: string;
   value: string | number;
   hint?: string;
   segments?: Segment[];
-  emphasis?: boolean;
 }) {
   const total = segments?.reduce((sum, s) => sum + s.value, 0) ?? 0;
 
   return (
     <div className="rounded-xl border border-line bg-surface p-4 shadow-card">
-      <p className="text-xs font-medium tracking-wide text-ink-3 uppercase">
-        {label}
-      </p>
-      <p
-        className={`mt-2 text-3xl font-semibold tracking-tight tabular-nums ${
-          emphasis ? "text-accent-ink" : ""
-        }`}
-      >
+      <div className="flex items-center gap-2 text-ink-3">
+        <Icon size={14} strokeWidth={1.9} />
+        <p className="text-xs font-medium tracking-wide uppercase">{label}</p>
+      </div>
+
+      <p className="mt-2.5 text-2xl font-semibold tracking-tight tabular-nums">
         {value}
       </p>
 
@@ -145,7 +158,7 @@ function StatTile({
             .filter((s) => s.value > 0)
             .map((s) => `${s.value} ${s.label}`)
             .join(", ")}
-          className="mt-3 flex h-1.5 gap-0.5 overflow-hidden rounded-full"
+          className="mt-2.5 flex h-1 gap-0.5 overflow-hidden rounded-full"
         >
           {segments
             .filter((segment) => segment.value > 0)
@@ -183,20 +196,26 @@ function ChartCard({
 
 function DashboardSkeleton() {
   return (
-    <div className="flex flex-col gap-6">
-      <div className="pb-2">
-        <Skeleton className="h-3 w-36" />
-        <Skeleton className="mt-3 h-7 w-48" />
-        <Skeleton className="mt-2 h-4 w-80" />
+    <div className="flex flex-col gap-5">
+      <div>
+        <Skeleton className="h-7 w-64" />
+        <Skeleton className="mt-2.5 h-4 w-96" />
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <SkeletonCard key={i} />
+          <div
+            key={i}
+            className="rounded-xl border border-line bg-surface p-4 shadow-card"
+          >
+            <Skeleton className="h-3 w-24" />
+            <Skeleton className="mt-3 h-6 w-16" />
+            <Skeleton className="mt-3 h-3 w-28" />
+          </div>
         ))}
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 xl:grid-cols-2">
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
@@ -261,11 +280,16 @@ export default function DashboardPage() {
 
     return (
       <div>
-        <PageHeader
-          eyebrow={`Week of ${formatWeekRange(week.start, week.end)}`}
-          title={`Welcome back, ${user?.name ?? ""}`}
-          description="File this week's report, or look back at what you have submitted before."
-        />
+        <header className="pb-6">
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {greeting()}, {firstName(user?.name ?? "")}
+          </h1>
+          <p className="mt-1 text-sm text-ink-2">
+            You are reporting on {formatWeekRange(week.start, week.end)}. File
+            this week&apos;s report, or look back at what you have submitted
+            before.
+          </p>
+        </header>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <Card className="flex flex-col p-5">
@@ -308,72 +332,82 @@ export default function DashboardPage() {
 
   const { summary } = data;
 
-  const complianceHint = [
-    `${summary.onTime} on time`,
-    summary.late > 0 ? `${summary.late} late` : null,
-    summary.pending > 0 ? `${summary.pending} pending` : null,
-  ]
-    .filter(Boolean)
-    .join(" · ");
+  const totalReports = data.statusByMember.reduce(
+    (sum, member) =>
+      sum + STATUS_KEYS.reduce((count, status) => count + member[status], 0),
+    0
+  );
+
+  const awaitingReview = summary.compliance.SUBMITTED;
+
+  const standfirst =
+    awaitingReview > 0
+      ? `${awaitingReview} report${awaitingReview === 1 ? " is" : "s are"} waiting on your review.`
+      : summary.pending > 0
+        ? `${summary.pending} of ${summary.teamSize} have not filed for this week yet.`
+        : "Everyone has filed for this week.";
 
   return (
-    <div className="flex flex-col gap-6">
-      <PageHeader
-        eyebrow={`Week of ${formatWeekRange(data.week.start, data.week.end)}`}
-        title="Team dashboard"
-        description="How the team is tracking this week, and where the work actually went."
-        actions={
-          <Link href="/team" className={buttonClasses("secondary")}>
-            Review reports
-          </Link>
-        }
-      />
+    <div className="flex flex-col gap-5">
+      <header className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {greeting()}, {firstName(user?.name ?? "")}
+          </h1>
+          <p className="mt-1 text-sm text-ink-2">
+            {standfirst} Week of{" "}
+            {formatWeekRange(data.week.start, data.week.end)}.
+          </p>
+        </div>
 
-      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <StatTile
-          label="Submitted this week"
-          value={`${summary.submittedThisWeek} / ${summary.teamSize}`}
-          segments={[
-            {
-              label: "filed",
-              value: summary.submittedThisWeek,
-              className: "bg-accent",
-            },
-            { label: "not filed", value: summary.pending, className: "bg-line" },
-          ]}
-          hint={
-            summary.pending > 0
-              ? `${summary.pending} still pending`
-              : "Everyone has filed"
-          }
+        <Link href="/team" className={buttonClasses("secondary")}>
+          Review reports
+          <ArrowRight size={15} />
+        </Link>
+      </header>
+
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <Kpi
+          icon={FileText}
+          label="Total reports"
+          value={totalReports}
+          hint={`Filed by ${summary.teamSize} team members`}
         />
-        <StatTile
-          label="Compliance rate"
+        <Kpi
+          icon={TrendingUp}
+          label="Submission rate"
           value={`${summary.complianceRate}%`}
-          emphasis
           segments={[
             { label: "on time", value: summary.onTime, className: "bg-ok-ink" },
             { label: "late", value: summary.late, className: "bg-warn-ink" },
             { label: "pending", value: summary.pending, className: "bg-line" },
           ]}
-          hint={complianceHint}
+          hint={[
+            `${summary.onTime} on time`,
+            summary.late > 0 ? `${summary.late} late` : null,
+            summary.pending > 0 ? `${summary.pending} pending` : null,
+          ]
+            .filter(Boolean)
+            .join(" · ")}
         />
-        <StatTile
+        <Kpi
+          icon={CircleAlert}
           label="Needs correction"
           value={summary.needsCorrection}
           hint="Sent back, waiting on edits"
         />
-        <StatTile
+        <Kpi
+          icon={OctagonAlert}
           label="Open blockers"
           value={summary.openBlockers}
           hint="On reports not yet approved"
         />
       </section>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 xl:grid-cols-2">
         <ChartCard
-          title="Tasks completed"
-          hint="Across the whole team, by week"
+          title="Submission trend"
+          hint="Tasks completed across the whole team, by week"
         >
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
@@ -413,8 +447,8 @@ export default function DashboardPage() {
         </ChartCard>
 
         <ChartCard
-          title="Report status by team member"
-          hint="Every report they have filed so far"
+          title="Team status"
+          hint="Every report each member has filed so far"
         >
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
@@ -481,7 +515,7 @@ export default function DashboardPage() {
                 tickLine={false}
                 axisLine={{ stroke: colors.grid }}
                 tickFormatter={(value: string) =>
-                  value.length > 14 ? `${value.slice(0, 13)}...` : value
+                  value.length > 16 ? `${value.slice(0, 15)}...` : value
                 }
               />
               <YAxis
@@ -494,7 +528,12 @@ export default function DashboardPage() {
                 cursor={false}
                 formatter={(value) => [`${value} hrs`, "Hours"]}
               />
-              <Bar dataKey="hours" radius={[4, 4, 0, 0]} isAnimationActive={false}>
+              <Bar
+                dataKey="hours"
+                radius={[4, 4, 0, 0]}
+                maxBarSize={64}
+                isAnimationActive={false}
+              >
                 {data.workloadByProject.map((entry) => (
                   <Cell key={entry.project} fill={colors.line} />
                 ))}
@@ -504,7 +543,7 @@ export default function DashboardPage() {
         </ChartCard>
 
         <ChartCard
-          title="Time spent by task type"
+          title="Time by task type"
           hint="Where the team's hours actually went"
         >
           <ResponsiveContainer width="100%" height="100%">
@@ -539,6 +578,7 @@ export default function DashboardPage() {
                 dataKey="hours"
                 fill={colors.line}
                 radius={[0, 4, 4, 0]}
+                maxBarSize={28}
                 isAnimationActive={false}
               />
             </BarChart>
@@ -552,67 +592,52 @@ export default function DashboardPage() {
           description="Submissions and review decisions, newest first"
         />
 
-        <ol className="px-5 pb-5">
-          {data.activity.map((item, index) => (
-            <li key={item.id} className="relative flex gap-3 pb-5 last:pb-0">
-              {index < data.activity.length - 1 && (
-                <span
-                  aria-hidden="true"
-                  className="absolute top-4 bottom-0 left-[3.5px] w-px bg-line"
-                />
-              )}
+        <ul className="divide-y divide-line-soft border-t border-line">
+          {data.activity.map((item) => {
+            const actor =
+              item.kind === "SUBMITTED" ? item.userName : (item.actorName ?? "");
 
-              <span
-                aria-hidden="true"
-                className="mt-1.5 h-2 w-2 shrink-0 rounded-full ring-4 ring-surface"
-                style={{
-                  backgroundColor:
-                    item.kind === "APPROVED"
-                      ? colors.APPROVED
-                      : item.kind === "REQUESTED_CHANGES"
-                        ? colors.NEEDS_CORRECTION
-                        : colors.SUBMITTED,
-                }}
-              />
+            return (
+              <li key={item.id} className="flex gap-3 px-5 py-3.5">
+                <Avatar name={actor} size="sm" className="mt-0.5" />
 
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-baseline gap-x-2">
-                  <p className="text-sm">
-                    <span className="font-medium">
-                      {item.kind === "SUBMITTED" ? item.userName : item.actorName}
-                    </span>{" "}
-                    {ACTIVITY_LABELS[item.kind]}{" "}
-                    {item.kind !== "SUBMITTED" && (
-                      <>
-                        <span className="font-medium">{item.userName}</span>
-                        &apos;s{" "}
-                      </>
-                    )}
-                    <Link
-                      href={`/reports/${item.reportId}`}
-                      className="font-medium text-accent-ink underline-offset-2 hover:underline"
-                    >
-                      {shortWeek(item.weekStart.slice(0, 10))} report
-                    </Link>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-baseline gap-x-2">
+                    <p className="text-sm">
+                      <span className="font-medium">{actor}</span>{" "}
+                      {ACTIVITY_LABELS[item.kind]}{" "}
+                      {item.kind !== "SUBMITTED" && (
+                        <>
+                          <span className="font-medium">{item.userName}</span>
+                          &apos;s{" "}
+                        </>
+                      )}
+                      <Link
+                        href={`/reports/${item.reportId}`}
+                        className="font-medium text-accent-ink underline-offset-2 hover:underline"
+                      >
+                        {shortWeek(item.weekStart.slice(0, 10))} report
+                      </Link>
+                    </p>
+                    <span className="ml-auto text-xs whitespace-nowrap text-ink-3">
+                      {formatDateTime(item.at)}
+                    </span>
+                  </div>
+
+                  <p className="mt-0.5 text-xs text-ink-3">
+                    {item.projectName} · version {item.versionNumber}
                   </p>
-                  <span className="ml-auto text-xs whitespace-nowrap text-ink-3">
-                    {formatDateTime(item.at)}
-                  </span>
+
+                  {item.comment && (
+                    <p className="mt-2 rounded-md bg-surface-muted px-3 py-2 text-xs text-ink-2">
+                      &ldquo;{item.comment}&rdquo;
+                    </p>
+                  )}
                 </div>
-
-                <p className="mt-0.5 text-xs text-ink-3">
-                  {item.projectName} · version {item.versionNumber}
-                </p>
-
-                {item.comment && (
-                  <p className="mt-2 rounded-md bg-surface-muted px-3 py-2 text-xs text-ink-2">
-                    &ldquo;{item.comment}&rdquo;
-                  </p>
-                )}
-              </div>
-            </li>
-          ))}
-        </ol>
+              </li>
+            );
+          })}
+        </ul>
       </Card>
     </div>
   );

@@ -3,7 +3,7 @@
 import { ReactNode, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import NavBar from "@/components/NavBar";
+import AppShell from "@/components/shell/AppShell";
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
@@ -29,12 +29,5 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
   if (!user) return null;
 
-  return (
-    <>
-      <NavBar />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6">
-        {children}
-      </main>
-    </>
-  );
+  return <AppShell role={user.role}>{children}</AppShell>;
 }

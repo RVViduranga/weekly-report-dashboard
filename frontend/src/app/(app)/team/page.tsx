@@ -7,7 +7,6 @@ import StatusBadge from "@/components/StatusBadge";
 import { formatWeekRange } from "@/lib/format";
 import { mondayOf } from "@/lib/reportForm";
 import { useRequireManager } from "@/lib/useRequireManager";
-import PageHeader from "@/components/ui/PageHeader";
 import Button, { buttonClasses } from "@/components/ui/Button";
 import { controlClassSm, Notice } from "@/components/ui/Field";
 import EmptyState from "@/components/ui/EmptyState";
@@ -136,10 +135,13 @@ export default function TeamReportsPage() {
 
   return (
     <div>
-      <PageHeader
-        title="Team reports"
-        description="Every report from the whole team. Filter it down, then open one to review."
-      />
+      <header className="pb-5">
+        <h1 className="text-2xl font-semibold tracking-tight">Team reports</h1>
+        <p className="mt-1 text-sm text-ink-2">
+          Every report from the whole team. Filter it down, then open one to
+          review.
+        </p>
+      </header>
 
       <div className="mb-4 rounded-xl border border-line bg-surface p-4 shadow-card">
         <div className="flex flex-wrap items-end gap-3">

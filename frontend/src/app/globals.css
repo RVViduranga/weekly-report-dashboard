@@ -26,11 +26,11 @@
   --ink-2: #52525b;
   --ink-3: #6e6e78;
 
-  --accent: #4f46e5;
-  --accent-hover: #4338ca;
-  --accent-soft: #eef2ff;
-  --accent-ink: #3730a3;
-  --accent-line: #c7d2fe;
+  --accent: #1d4ed8;
+  --accent-hover: #1e40af;
+  --accent-soft: #eff6ff;
+  --accent-ink: #1e40af;
+  --accent-line: #bfdbfe;
 
   --on-accent: #ffffff;
 
@@ -45,7 +45,7 @@
   --danger-soft: #fee2e2;
   --danger-ink: #b91c1c;
 
-  --ring: #a5b4fc;
+  --ring: #93c5fd;
   --elevation-1: 0 1px 2px rgb(24 24 27 / 0.05);
   --elevation-2: 0 1px 3px rgb(24 24 27 / 0.08), 0 4px 12px rgb(24 24 27 / 0.04);
 }
@@ -63,11 +63,11 @@
   --ink-2: #a1a1aa;
   --ink-3: #8e8e99;
 
-  --accent: #5b54ea;
-  --accent-hover: #818cf8;
-  --accent-soft: #1e1b4b;
-  --accent-ink: #c7d2fe;
-  --accent-line: #3730a3;
+  --accent: #2563eb;
+  --accent-hover: #3b82f6;
+  --accent-soft: #172554;
+  --accent-ink: #bfdbfe;
+  --accent-line: #1e40af;
 
   --on-accent: #ffffff;
 
@@ -82,7 +82,7 @@
   --danger-soft: #3d1418;
   --danger-ink: #fca5a5;
 
-  --ring: #4f46e5;
+  --ring: #2563eb;
   /* Nothing is raised off a dark ground. */
   --elevation-1: none;
   --elevation-2: none;

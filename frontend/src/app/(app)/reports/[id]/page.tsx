@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import { CircleCheck, Pencil, Send } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
 import ReportDetail from "@/components/ReportDetail";
 import ReviewComment from "@/components/ReviewComment";
@@ -10,21 +11,26 @@ import VersionHistory from "@/components/VersionHistory";
 import { useAuth } from "@/context/AuthContext";
 import Card, { CardHeader } from "@/components/ui/Card";
 import Button, { buttonClasses } from "@/components/ui/Button";
+import Dialog from "@/components/ui/Dialog";
 import { BackLink } from "@/components/ui/PageHeader";
 import { Notice } from "@/components/ui/Field";
 import Skeleton from "@/components/ui/Skeleton";
+import { useToast } from "@/components/ui/Toast";
+import { formatDateTime } from "@/lib/format";
 import type { Report, ReportVersion } from "@/types";
 
 export default function ReportDetailPage() {
   const params = useParams<{ id: string }>();
   const reportId = params.id;
   const { user } = useAuth();
+  const toast = useToast();
 
   const [report, setReport] = useState<Report | null>(null);
   const [versions, setVersions] = useState<ReportVersion[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [confirmSubmit, setConfirmSubmit] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
 
   function load() {
@@ -65,6 +71,8 @@ export default function ReportDetailPage() {
     try {
       await api.post(`/reports/${reportId}/submit`);
       await load();
+      setConfirmSubmit(false);
+      toast.success("Report submitted for review");
     } catch (err) {
       setError(
         err instanceof ApiError ? err.message : "Could not submit the report"
@@ -77,10 +85,9 @@ export default function ReportDetailPage() {
   if (loading) {
     return (
       <div className="flex flex-col gap-4">
-        <Skeleton className="h-4 w-24" />
-        <Skeleton className="h-8 w-64" />
-        <Skeleton className="h-4 w-48" />
-        <Skeleton className="mt-2 h-64 w-full rounded-xl" />
+        <Skeleton className="h-4 w-32" />
+        <Skeleton className="h-28 w-full rounded-xl" />
+        <Skeleton className="h-64 w-full rounded-xl" />
         <div className="grid gap-4 md:grid-cols-2">
           <Skeleton className="h-40 w-full rounded-xl" />
           <Skeleton className="h-40 w-full rounded-xl" />
@@ -109,6 +116,9 @@ export default function ReportDetailPage() {
   const latestReview = versions.find(
     (version) => version.reviewAction === "REQUESTED_CHANGES"
   );
+  const approval = versions.find(
+    (version) => version.reviewAction === "APPROVED"
+  );
 
   return (
     <div>
@@ -124,10 +134,12 @@ export default function ReportDetailPage() {
                 href={`/reports/${reportId}/edit`}
                 className={buttonClasses("secondary")}
               >
+                <Pencil size={15} />
                 Edit
               </Link>
-              <Button onClick={handleSubmit} busy={submitting}>
-                {submitting ? "Submitting" : "Submit for review"}
+              <Button onClick={() => setConfirmSubmit(true)}>
+                <Send size={15} />
+                Submit for review
               </Button>
             </>
           )}
@@ -146,6 +158,20 @@ export default function ReportDetailPage() {
             comment={latestReview.reviewComment}
             reviewerName={latestReview.reviewer?.name}
           />
+        )}
+
+        {report.status === "APPROVED" && approval && (
+          <div className="flex items-center gap-2.5 rounded-xl border border-ok-ink/20 bg-ok-soft px-4 py-3 text-sm text-ok-ink">
+            <CircleCheck size={16} className="shrink-0" />
+            <span>
+              Approved
+              {approval.reviewer ? ` by ${approval.reviewer.name}` : ""}
+              {approval.reviewedAt
+                ? ` on ${formatDateTime(approval.reviewedAt)}`
+                : ""}
+              .
+            </span>
+          </div>
         )}
 
         {error && <Notice>{error}</Notice>}
@@ -175,6 +201,27 @@ export default function ReportDetailPage() {
           )}
         </Card>
       </div>
+
+      <Dialog
+        open={confirmSubmit}
+        title="Submit this report for review?"
+        description="Your manager is notified and the report is locked until they respond. If they send it back you can edit and resubmit it."
+        onClose={() => setConfirmSubmit(false)}
+        footer={
+          <>
+            <Button
+              variant="ghost"
+              onClick={() => setConfirmSubmit(false)}
+              disabled={submitting}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleSubmit} busy={submitting} data-autofocus>
+              Submit for review
+            </Button>
+          </>
+        }
+      />
     </div>
   );
 }

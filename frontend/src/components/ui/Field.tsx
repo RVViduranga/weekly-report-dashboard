@@ -1,3 +1,4 @@
+import { Search } from "lucide-react";
 import type { ReactNode } from "react";
 
 /** Every text input, select and date box in the app wears one of these. */
@@ -35,6 +36,41 @@ export default function Field({
         hint && <span className="text-xs text-ink-3">{hint}</span>
       )}
     </label>
+  );
+}
+
+/**
+ * Filters the rows already on the page. Only used where the whole collection
+ * is loaded at once - searching one page of a paginated list would quietly
+ * hide matches on the others.
+ */
+export function SearchInput({
+  value,
+  onChange,
+  placeholder,
+  className = "",
+}: {
+  value: string;
+  onChange: (next: string) => void;
+  placeholder: string;
+  className?: string;
+}) {
+  return (
+    <div className={`relative ${className}`}>
+      <Search
+        size={15}
+        aria-hidden="true"
+        className="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-ink-3"
+      />
+      <input
+        type="search"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        aria-label={placeholder}
+        placeholder={placeholder}
+        className={`${controlClassSm} w-full pl-8`}
+      />
+    </div>
   );
 }
 

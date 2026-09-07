@@ -13,7 +13,7 @@ import { useResolvedTheme } from "@/lib/theme";
  * the separations only hold as a group, in the order they are stacked.
  */
 const LIGHT = {
-  line: "#4f46e5",
+  line: "#1d4ed8",
   APPROVED: "#177a45",
   SUBMITTED: "#2f6fe0",
   NEEDS_CORRECTION: "#c2620a",
@@ -26,7 +26,7 @@ const LIGHT = {
 };
 
 const DARK = {
-  line: "#818cf8",
+  line: "#60a5fa",
   APPROVED: "#008300",
   SUBMITTED: "#3987e5",
   NEEDS_CORRECTION: "#d95926",
