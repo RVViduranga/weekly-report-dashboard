@@ -283,14 +283,15 @@ async function main() {
       } as unknown as Prisma.InputJsonValue;
 
       // Most people file within the week; a few file after it closed, so the
-      // dashboard's on-time / late split has something real to show. An on-time
-      // filing never carries a timestamp later than right now - the current
-      // week has not reached its Sunday yet.
-      const filedLate = (m + w) % 5 === 0;
+      // dashboard's on-time / late split has something real to show. Every
+      // timestamp is then clamped to now, so nothing is ever dated in the
+      // future - which also means nobody counts as late in a week whose
+      // deadline has not passed yet.
       const submittedAt = weekEndFor(w);
-      if (filedLate) {
+      if ((m + w) % 5 === 0) {
         submittedAt.setUTCDate(submittedAt.getUTCDate() + 2);
-      } else if (submittedAt > NOW) {
+      }
+      if (submittedAt > NOW) {
         submittedAt.setTime(NOW.getTime());
       }
 
