@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Button from "@/components/ui/Button";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const linksForEveryone = [
   { href: "/dashboard", label: "Dashboard" },
@@ -42,62 +43,40 @@ export default function NavBar() {
     router.replace("/login");
   }
 
-  const account = (
-    <div className="flex items-center gap-3">
-      <div className="flex items-center gap-2.5">
-        <span
-          aria-hidden="true"
-          className="flex h-7 w-7 items-center justify-center rounded-full bg-surface-muted text-[11px] font-semibold text-ink-2 ring-1 ring-line"
-        >
-          {initials(user.name)}
-        </span>
-        <span className="hidden leading-tight md:block">
-          <span className="block text-sm font-medium">{user.name}</span>
-          <span className="block text-[11px] tracking-wide text-ink-3 uppercase">
-            {user.role === "MANAGER" ? "Manager" : "Team member"}
-          </span>
-        </span>
-      </div>
-
-      <Button variant="secondary" size="sm" onClick={handleLogout}>
-        Sign out
-      </Button>
-    </div>
-  );
-
   return (
     <header className="sticky top-0 z-20 border-b border-line bg-surface/80 backdrop-blur-md">
+      {/*
+        One row on a laptop. On a phone the links take a full-width row of
+        their own and wrap underneath - done with `order` and `basis` so the
+        account controls are rendered once, not duplicated per breakpoint.
+      */}
       <nav
         aria-label="Main"
-        className="mx-auto flex max-w-6xl flex-col gap-2.5 px-4 py-3 sm:flex-row sm:items-center sm:gap-6 sm:px-6"
+        className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-2.5 px-4 py-3 sm:px-6"
       >
-        {/* On a phone the brand and the account share the top row, and the
-            links get a scrollable row of their own underneath. */}
-        <div className="flex items-center justify-between gap-3 sm:flex-none">
-          <Link
-            href="/dashboard"
-            className="flex items-center gap-2.5 text-sm font-semibold tracking-tight"
+        <Link
+          href="/dashboard"
+          className="order-1 flex items-center gap-2.5 text-sm font-semibold tracking-tight"
+        >
+          <span
+            aria-hidden="true"
+            className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent text-on-accent"
           >
-            <span
-              aria-hidden="true"
-              className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent text-on-accent"
-            >
-              <svg width="15" height="15" viewBox="0 0 20 20" fill="none">
-                <path
-                  d="M4 14.5V9m4 5.5v-9m4 9V11m4 3.5V6.5"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </span>
-            Weekly Reports
-          </Link>
+            <svg width="15" height="15" viewBox="0 0 20 20" fill="none">
+              <path
+                d="M4 14.5V9m4 5.5v-9m4 9V11m4 3.5V6.5"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            </svg>
+          </span>
+          {/* The mark alone on a phone, so the top row fits in one line. */}
+          <span className="hidden sm:inline">Weekly Reports</span>
+          <span className="sr-only sm:hidden">Weekly Reports</span>
+        </Link>
 
-          <div className="sm:hidden">{account}</div>
-        </div>
-
-        <ul className="-mx-1 flex flex-1 items-center gap-1 overflow-x-auto px-1">
+        <ul className="order-3 -mx-1 flex basis-full items-center gap-1 overflow-x-auto px-1 sm:order-2 sm:flex-1 sm:basis-auto">
           {links.map((link) => {
             const active =
               pathname === link.href || pathname.startsWith(`${link.href}/`);
@@ -119,7 +98,28 @@ export default function NavBar() {
           })}
         </ul>
 
-        <div className="hidden sm:block">{account}</div>
+        <div className="order-2 ml-auto flex items-center gap-3 sm:order-3 sm:ml-0">
+          <ThemeToggle />
+
+          <div className="flex items-center gap-2.5">
+            <span
+              aria-hidden="true"
+              className="flex h-7 w-7 items-center justify-center rounded-full bg-surface-muted text-[11px] font-semibold text-ink-2 ring-1 ring-line"
+            >
+              {initials(user.name)}
+            </span>
+            <span className="hidden leading-tight md:block">
+              <span className="block text-sm font-medium">{user.name}</span>
+              <span className="block text-[11px] tracking-wide text-ink-3 uppercase">
+                {user.role === "MANAGER" ? "Manager" : "Team member"}
+              </span>
+            </span>
+          </div>
+
+          <Button variant="secondary" size="sm" onClick={handleLogout}>
+            Sign out
+          </Button>
+        </div>
       </nav>
     </header>
   );

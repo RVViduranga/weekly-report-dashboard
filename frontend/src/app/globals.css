@@ -1,13 +1,20 @@
 @import "tailwindcss";
 
 /*
- * One token layer, two themes. Components never name a raw colour - they use
- * the semantic tokens below, so light and dark stay in step and there is no
- * `dark:` variant sprinkled through the markup.
+ * Two themes, each palette written once, selected by a `data-theme` attribute.
+ *
+ * The bootstrap script in the root layout resolves the choice - the stored
+ * preference, or the system setting when that choice is "system" - and stamps
+ * the attribute on <html> before the first paint, so there is no flash and no
+ * second copy of either palette behind a media query.
+ *
+ * `light-dark()` would say this in half the lines by switching `color-scheme`
+ * instead. It is left alone deliberately: every colour here would be invalid
+ * on a browser that does not support it, where this pattern degrades to no
+ * dark theme at worst.
  */
 :root {
-  /* Native controls - scrollbars, selects, date pickers - follow this. */
-  color-scheme: light dark;
+  color-scheme: light;
 
   --page: #f7f7f8;
   --surface: #ffffff;
@@ -43,41 +50,42 @@
   --elevation-2: 0 1px 3px rgb(24 24 27 / 0.08), 0 4px 12px rgb(24 24 27 / 0.04);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --page: #09090b;
-    --surface: #131316;
-    --surface-muted: #1a1a1f;
-    --line: #27272d;
-    --line-soft: #1e1e23;
+:root[data-theme="dark"] {
+  color-scheme: dark;
 
-    --ink: #ededf0;
-    --ink-2: #a1a1aa;
-    --ink-3: #8e8e99;
+  --page: #09090b;
+  --surface: #131316;
+  --surface-muted: #1a1a1f;
+  --line: #27272d;
+  --line-soft: #1e1e23;
 
-    --accent: #5b54ea;
-    --accent-hover: #818cf8;
-    --accent-soft: #1e1b4b;
-    --accent-ink: #c7d2fe;
-    --accent-line: #3730a3;
+  --ink: #ededf0;
+  --ink-2: #a1a1aa;
+  --ink-3: #8e8e99;
 
-    --on-accent: #ffffff;
+  --accent: #5b54ea;
+  --accent-hover: #818cf8;
+  --accent-soft: #1e1b4b;
+  --accent-ink: #c7d2fe;
+  --accent-line: #3730a3;
 
-    --ok-soft: #0d2f1c;
-    --ok-ink: #6ee7a8;
-    --warn-soft: #362408;
-    --warn-ink: #fbbf24;
-    --info-soft: #12224a;
-    --info-ink: #93b4fd;
-    --idle-soft: #232329;
-    --idle-ink: #a1a1aa;
-    --danger-soft: #3d1418;
-    --danger-ink: #fca5a5;
+  --on-accent: #ffffff;
 
-    --ring: #4f46e5;
-    --elevation-1: none;
-    --elevation-2: none;
-  }
+  --ok-soft: #0d2f1c;
+  --ok-ink: #6ee7a8;
+  --warn-soft: #362408;
+  --warn-ink: #fbbf24;
+  --info-soft: #12224a;
+  --info-ink: #93b4fd;
+  --idle-soft: #232329;
+  --idle-ink: #a1a1aa;
+  --danger-soft: #3d1418;
+  --danger-ink: #fca5a5;
+
+  --ring: #4f46e5;
+  /* Nothing is raised off a dark ground. */
+  --elevation-1: none;
+  --elevation-2: none;
 }
 
 @theme inline {

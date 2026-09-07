@@ -252,11 +252,17 @@ not disturb the demo data.
 ## Interface
 
 One token layer, two themes. `src/app/globals.css` defines a semantic palette -
-surfaces, lines, ink, one accent, four status colours - and redefines those same
-tokens under `prefers-color-scheme: dark`. Components name the token, never the
-colour, so there is no `dark:` variant anywhere in the markup and the two themes
-cannot drift apart. `src/components/ui/` holds the primitives the rest is built
-from: button, card, table shell, form field, skeleton, empty state.
+surfaces, lines, ink, one accent, four status colours - once for light and once
+for dark. Components name the token, never the colour, so there is no `dark:`
+variant anywhere in the markup and the two themes cannot drift apart.
+`src/components/ui/` holds the primitives the rest is built from: button, card,
+table shell, form field, skeleton, empty state.
+
+The theme follows the system by default, and the toggle in the header overrides
+it. The choice is stored in `localStorage` and re-applied by a small inline
+script in the document head, which runs while the HTML is still parsing - so a
+saved theme is already in place at the first paint instead of flashing in after
+hydration.
 
 Four things that are easy to skip, and were not:
 

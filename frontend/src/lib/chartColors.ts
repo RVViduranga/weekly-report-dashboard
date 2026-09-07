@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useResolvedTheme } from "@/lib/theme";
 
 /**
  * Two palettes doing two different jobs.
@@ -40,29 +40,10 @@ const DARK = {
 
 export type ChartColors = typeof LIGHT;
 
-const DARK_MODE_QUERY = "(prefers-color-scheme: dark)";
-
-function subscribeToColorScheme(onChange: () => void): () => void {
-  const query = window.matchMedia(DARK_MODE_QUERY);
-  query.addEventListener("change", onChange);
-  return () => query.removeEventListener("change", onChange);
-}
-
-function isDarkInBrowser(): boolean {
-  return window.matchMedia(DARK_MODE_QUERY).matches;
-}
-
-/** The server has no colour scheme to read, so it renders the light palette. */
-function isDarkOnServer(): boolean {
-  return false;
-}
-
+/**
+ * Charts read the same resolved theme the rest of the interface does, so the
+ * toggle moves them along with everything else - not just the system setting.
+ */
 export function useChartColors(): ChartColors {
-  const isDark = useSyncExternalStore(
-    subscribeToColorScheme,
-    isDarkInBrowser,
-    isDarkOnServer
-  );
-
-  return isDark ? DARK : LIGHT;
+  return useResolvedTheme() === "dark" ? DARK : LIGHT;
 }

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { ApiError } from "@/lib/api";
 import Button from "@/components/ui/Button";
+import ThemeToggle from "@/components/ThemeToggle";
 import Field, { controlClass, Notice } from "@/components/ui/Field";
 
 const DEMO_ACCOUNTS = [
@@ -49,7 +50,11 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex flex-1 items-center justify-center px-4 py-10">
+    <main className="relative flex flex-1 items-center justify-center px-4 py-10">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+
       <div className="w-full max-w-sm">
         <div className="mb-7 flex flex-col items-center text-center">
           <span
