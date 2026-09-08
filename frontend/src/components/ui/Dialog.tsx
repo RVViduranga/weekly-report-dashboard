@@ -27,11 +27,31 @@ export default function Dialog({
   const titleId = useId();
   const descriptionId = useId();
 
+  /**
+   * Focus moves in when the dialog opens and back out when it closes, and this
+   * depends on `open` alone. Callers pass `onClose` as an inline arrow, so it is
+   * a new function on every render - keeping it in these dependencies re-ran the
+   * effect on every keystroke and pulled the caret back to the first field.
+   */
   useEffect(() => {
     if (!open) return;
 
     const previouslyFocused = document.activeElement as HTMLElement | null;
     panelRef.current?.querySelector<HTMLElement>("[data-autofocus]")?.focus();
+
+    const { overflow } = document.body.style;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = overflow;
+      previouslyFocused?.focus();
+    };
+  }, [open]);
+
+  // Escape closes and Tab stays inside. This one does need the current
+  // `onClose`, and re-subscribing a listener costs nothing.
+  useEffect(() => {
+    if (!open) return;
 
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
@@ -59,14 +79,7 @@ export default function Dialog({
     }
 
     document.addEventListener("keydown", onKeyDown);
-    const { overflow } = document.body.style;
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.removeEventListener("keydown", onKeyDown);
-      document.body.style.overflow = overflow;
-      previouslyFocused?.focus();
-    };
+    return () => document.removeEventListener("keydown", onKeyDown);
   }, [open, onClose]);
 
   if (!open) return null;
