@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import Sidebar from "@/components/shell/Sidebar";
 import AppHeader from "@/components/shell/AppHeader";
 import { ToastProvider } from "@/components/ui/Toast";
+import AssistantWidget from "@/components/AssistantWidget";
 import type { Role } from "@/types";
 
 export default function AppShell({
@@ -69,6 +70,8 @@ export default function AppShell({
           </main>
         </div>
       </div>
+
+      {role === "MANAGER" && <AssistantWidget />}
     </ToastProvider>
   );
 }

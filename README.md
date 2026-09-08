@@ -231,6 +231,46 @@ every status, so the dashboard has something real to show. Several approved repo
 carry two versions, with the manager's comment on the first — that is the version
 history in action.
 
+## Team assistant
+
+A manager can ask questions about the week in plain English - "who is blocked
+this week?", "who has not filed yet?" - and get an answer drawn from the reports
+the team actually filed.
+
+**How it works.** `POST /api/assistant` is manager-only, behind the same
+`requireRole("MANAGER")` as the dashboard, because an answer can quote any team
+member's report. The service reads that week's reports, renders them as plain
+text, and sends that as a system message alongside the question. There is no
+vector database and no retrieval step: one week of reports is a few kilobytes,
+which fits in the prompt whole, so retrieval would be machinery without a
+purpose.
+
+**Prompt design.** Two system messages rather than one - the rules, which never
+change, and the data, which changes every week. The rules tell the model that
+the data it has been given is the complete dataset for that week, so an absence
+is an answer rather than a gap; without that sentence a model hedges instead of
+saying "nobody". Conversation history is capped at six turns.
+
+**Data privacy.** Three decisions worth naming:
+
+- **The query is the boundary, not the prompt.** Names are selected because
+  answers are meaningless without them. Email addresses, database ids and
+  password hashes are not in any `select`, so they cannot reach a third-party
+  API even by mistake. A prompt can be talked out of a rule; a `select` cannot.
+- **The browser cannot send a system message.** The validator accepts only
+  `user` and `assistant` roles in the history, so a client cannot append an
+  instruction that rewrites the assistant's rules.
+- **A free model tier is not zero-retention.** Providers may train on what is
+  sent. That is acceptable for seeded demo data and would not be for a real
+  team: production would use a paid zero-retention tier or a self-hosted model.
+  The trade-off is deliberate, not overlooked.
+
+**Failure is expected, not exceptional.** Free models sit on pools shared by
+every free user of that provider, so `429 rate-limited upstream` happens while
+this account has used nothing at all. The client tries the models in order and
+moves on when one is busy. With no key configured the endpoint answers 503 and
+nothing else in the app notices.
+
 ## Scripts
 
 ### Backend
@@ -275,6 +315,7 @@ requests from the browser must be sent with `credentials: "include"`.
 | `GET` | `/reports/:id/versions` | owner or manager |
 | `GET` `POST` `PATCH` `DELETE` | `/users`, `/users/:id` | **manager** |
 | `GET` | `/dashboard` | **manager** |
+| `POST` | `/assistant` | **manager** |
 
 `GET /reports` and `GET /reports/mine` accept `page`, `pageSize`, `userId`,
 `projectId`, `status`, `weekStart`, `from` and `to`.

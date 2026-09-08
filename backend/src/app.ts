@@ -6,6 +6,7 @@ import projectRoutes from "./routes/project.routes";
 import reportRoutes from "./routes/report.routes";
 import userRoutes from "./routes/user.routes";
 import dashboardRoutes from "./routes/dashboard.routes";
+import assistantRoutes from "./routes/assistant.routes";
 
 function allowedOrigins(): string[] {
   return (process.env.FRONTEND_URL ?? "")
@@ -39,6 +40,7 @@ export function createApp() {
   app.use("/api/reports", reportRoutes);
   app.use("/api/users", userRoutes);
   app.use("/api/dashboard", dashboardRoutes);
+  app.use("/api/assistant", assistantRoutes);
 
   app.get("/api/health", (_req, res) => {
     res.json({ status: "ok" });

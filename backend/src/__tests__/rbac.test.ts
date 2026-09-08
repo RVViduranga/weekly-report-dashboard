@@ -58,6 +58,13 @@ describe("Unauthenticated requests are rejected", () => {
     expect(res.status).toBe(401);
   });
 
+  it("blocks POST /api/assistant", async () => {
+    const res = await request(app)
+      .post("/api/assistant")
+      .send({ question: "Who is blocked this week?" });
+    expect(res.status).toBe(401);
+  });
+
   it("blocks GET /api/projects", async () => {
     const res = await request(app).get("/api/projects");
     expect(res.status).toBe(401);
@@ -105,6 +112,16 @@ describe("Team members cannot use manager-only endpoints", () => {
       .post(`/api/reports/${memberReportId}/review`)
       .set("Cookie", memberCookie)
       .send({ action: "APPROVED" });
+    expect(res.status).toBe(403);
+  });
+
+  // The assistant answers across the whole team, so it is refused here for the
+  // same reason the dashboard is. The request never reaches the model.
+  it("blocks POST /api/assistant", async () => {
+    const res = await request(app)
+      .post("/api/assistant")
+      .set("Cookie", memberCookie)
+      .send({ question: "Who is blocked this week?" });
     expect(res.status).toBe(403);
   });
 });
