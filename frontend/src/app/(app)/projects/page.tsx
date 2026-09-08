@@ -2,11 +2,11 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import {
-  Archive,
   ArchiveRestore,
   EllipsisVertical,
   Pencil,
   Plus,
+  Trash2,
 } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
 import { useRequireManager } from "@/lib/useRequireManager";
@@ -65,7 +65,7 @@ export default function ProjectsPage() {
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
-  const [pendingArchive, setPendingArchive] = useState<Project | null>(null);
+  const [pendingRemoval, setPendingRemoval] = useState<Project | null>(null);
 
   function load() {
     return api
@@ -146,23 +146,44 @@ export default function ProjectsPage() {
     }
   }
 
-  async function setActive(project: Project, isActive: boolean) {
+  async function restore(project: Project) {
     setBusyId(project.id);
 
     try {
-      if (isActive) {
-        await api.patch(`/projects/${project.id}`, { isActive: true });
-      } else {
-        await api.delete(`/projects/${project.id}`);
-      }
+      await api.patch(`/projects/${project.id}`, { isActive: true });
       await load();
-      toast.success(
-        isActive ? `${project.name} was restored` : `${project.name} was archived`
-      );
-      setPendingArchive(null);
+      toast.success(`${project.name} was restored`);
     } catch (err) {
       toast.error(
-        err instanceof ApiError ? err.message : "Could not update the project"
+        err instanceof ApiError ? err.message : "Could not restore the project"
+      );
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  /**
+   * The server decides between deleting and archiving - it is the only side
+   * that can count the reports at the moment the request arrives - and says
+   * which it did, so the message here is never a guess.
+   */
+  async function remove(project: Project) {
+    setBusyId(project.id);
+
+    try {
+      const result = await api.delete<{ deleted: boolean; reportCount: number }>(
+        `/projects/${project.id}`
+      );
+      await load();
+      toast.success(
+        result.deleted
+          ? `${project.name} was deleted`
+          : `${project.name} was archived, because ${result.reportCount} reports reference it`
+      );
+      setPendingRemoval(null);
+    } catch (err) {
+      toast.error(
+        err instanceof ApiError ? err.message : "Could not remove the project"
       );
     } finally {
       setBusyId(null);
@@ -272,19 +293,28 @@ export default function ProjectsPage() {
                         icon: <Pencil />,
                         onSelect: () => openEdit(project),
                       },
-                      project.isActive
-                        ? {
-                            label: "Archive",
-                            icon: <Archive />,
-                            disabled: busyId === project.id,
-                            onSelect: () => setPendingArchive(project),
-                          }
-                        : {
-                            label: "Restore",
-                            icon: <ArchiveRestore />,
-                            disabled: busyId === project.id,
-                            onSelect: () => setActive(project, true),
-                          },
+                      ...(project.isActive
+                        ? []
+                        : [
+                            {
+                              label: "Restore",
+                              icon: <ArchiveRestore />,
+                              disabled: busyId === project.id,
+                              onSelect: () => restore(project),
+                            },
+                          ]),
+                      // An archived project with reports has nowhere left to
+                      // go, so it is not offered a dead action.
+                      ...(project.isActive || project.reportCount === 0
+                        ? [
+                            {
+                              label: "Delete",
+                              icon: <Trash2 />,
+                              disabled: busyId === project.id,
+                              onSelect: () => setPendingRemoval(project),
+                            },
+                          ]
+                        : []),
                     ]}
                   />
                 </td>
@@ -348,13 +378,23 @@ export default function ProjectsPage() {
       </Dialog>
 
       <ConfirmDialog
-        open={pendingArchive !== null}
-        title={`Archive ${pendingArchive?.name ?? ""}?`}
-        description="It disappears from the list people pick from when filing a report. Reports already filed against it are untouched, and you can restore it at any time."
-        confirmLabel="Archive project"
-        busy={busyId === pendingArchive?.id}
-        onConfirm={() => pendingArchive && setActive(pendingArchive, false)}
-        onClose={() => setPendingArchive(null)}
+        open={pendingRemoval !== null}
+        title={
+          pendingRemoval?.reportCount === 0
+            ? `Delete ${pendingRemoval?.name ?? ""}?`
+            : `Archive ${pendingRemoval?.name ?? ""}?`
+        }
+        description={
+          pendingRemoval?.reportCount === 0
+            ? "No reports reference this project, so it will be removed permanently. This cannot be undone."
+            : `${pendingRemoval?.reportCount} reports reference this project, so it will be archived rather than deleted. It disappears from the list people pick from when filing a report, every report already filed against it stays readable, and you can restore it at any time.`
+        }
+        confirmLabel={
+          pendingRemoval?.reportCount === 0 ? "Delete project" : "Archive project"
+        }
+        busy={busyId === pendingRemoval?.id}
+        onConfirm={() => pendingRemoval && remove(pendingRemoval)}
+        onClose={() => setPendingRemoval(null)}
       />
     </div>
   );

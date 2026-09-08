@@ -173,14 +173,58 @@ describe("Managers have the access team members do not", () => {
     expect(res.status).toBe(200);
   });
 
-  it("can create a project", async () => {
-    const res = await request(app)
+  it("can create a project, and delete one nothing references", async () => {
+    const created = await request(app)
       .post("/api/projects")
       .set("Cookie", managerCookie)
       .send({ name: "RBAC test project" });
-    expect(res.status).toBe(201);
+    expect(created.status).toBe(201);
 
-    await prisma.project.delete({ where: { id: res.body.project.id } });
+    const removed = await request(app)
+      .delete(`/api/projects/${created.body.project.id}`)
+      .set("Cookie", managerCookie);
+    expect(removed.status).toBe(200);
+    expect(removed.body.deleted).toBe(true);
+
+    const gone = await prisma.project.findUnique({
+      where: { id: created.body.project.id },
+    });
+    expect(gone).toBeNull();
+  });
+
+  it("archives a project that reports reference, instead of deleting it", async () => {
+    // Any project a report points at will do, and picking it this way means the
+    // test cannot accidentally choose an empty one.
+    const { projectId: busyProjectId } = await prisma.report.findFirstOrThrow({
+      select: { projectId: true },
+    });
+    const before = await prisma.project.findUniqueOrThrow({
+      where: { id: busyProjectId },
+    });
+
+    const res = await request(app)
+      .delete(`/api/projects/${busyProjectId}`)
+      .set("Cookie", managerCookie);
+
+    expect(res.status).toBe(200);
+    expect(res.body.deleted).toBe(false);
+    expect(res.body.reportCount).toBeGreaterThan(0);
+
+    const after = await prisma.project.findUniqueOrThrow({
+      where: { id: busyProjectId },
+    });
+    expect(after.isActive).toBe(false);
+
+    // The point of archiving: the reports are all still there.
+    const stillThere = await prisma.report.count({
+      where: { projectId: busyProjectId },
+    });
+    expect(stillThere).toBe(res.body.reportCount);
+
+    await prisma.project.update({
+      where: { id: busyProjectId },
+      data: { isActive: before.isActive },
+    });
   });
 
   it("still cannot rewrite a team member's report content", async () => {

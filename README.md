@@ -339,11 +339,12 @@ cd backend
 npm test
 ```
 
-15 tests covering the access rules: unauthenticated requests, team members hitting
+18 tests covering the access rules: unauthenticated requests, team members hitting
 manager-only endpoints, ownership isolation between team members, and the rule that
 a manager can change a report's status but not rewrite its content. The suite runs
-against the seeded database and only performs reads and rejected writes, so it does
-not disturb the demo data.
+against the seeded database. Almost every case is a read or a rejected write; the
+two that do write - deleting a project it created itself, and archiving one - put
+back what they changed, so the demo data is the same afterwards.
 
 ## Interface
 
@@ -395,5 +396,10 @@ Two design decisions worth calling out:
   but every submission also writes a `ReportVersion` with a JSON snapshot of the
   content. The manager's decision and comment are stored on that version row, which
   is what makes "which version was this comment about?" answerable.
-- **Projects are archived, not deleted.** `Project.isActive` is set to `false`
-  instead of removing the row, so months of reports that reference it stay intact.
+- **A project is deleted only when that is safe.** `Report.projectId` is not
+  nullable and the relation carries no cascade, so removing a project that has
+  reports would either fail on the foreign key or take months of history with it.
+  `DELETE /api/projects/:id` therefore counts first: with no reports the row is
+  removed for real, and otherwise `isActive` is set to `false` so the project
+  stops appearing in new reports while every old one still reads correctly. The
+  response says which of the two happened, so the interface never has to guess.

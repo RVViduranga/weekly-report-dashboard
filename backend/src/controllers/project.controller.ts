@@ -8,7 +8,7 @@ import {
   getProjectById,
   createProject,
   updateProject,
-  deactivateProject,
+  removeProject,
 } from "../services/project.service";
 import { sendError, sendValidationError } from "../lib/http";
 
@@ -75,8 +75,8 @@ export async function remove(
   res: Response
 ): Promise<void> {
   try {
-    const project = await deactivateProject(req.params.id);
-    res.status(200).json({ project });
+    const result = await removeProject(req.params.id);
+    res.status(200).json(result);
   } catch (error) {
     sendError(res, error);
   }

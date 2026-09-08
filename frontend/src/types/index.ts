@@ -35,6 +35,8 @@ export interface Project {
   description: string | null;
   isActive: boolean;
   createdAt: string;
+  /** How many reports point at this project. Zero means it can be deleted. */
+  reportCount: number;
 }
 
 export interface TaskItem {
