@@ -99,16 +99,16 @@ npm install
 
 ### 2. Set up the database
 
-Create a PostgreSQL database (on Neon, create a project and copy its connection
-string). Then create `backend/.env`:
+Create a PostgreSQL database - on Neon, create a project and copy its connection
+string. Then copy the example environment file and fill in your own values:
 
+```bash
+cd backend
+cp .env.example .env
 ```
-PORT=4000
-FRONTEND_URL=http://localhost:3200
-DATABASE_URL="postgresql://user:password@host-pooler.region.aws.neon.tech/neondb?sslmode=require"
-DIRECT_URL="postgresql://user:password@host.region.aws.neon.tech/neondb?sslmode=require"
-JWT_SECRET=a-long-random-string
-```
+
+`backend/.env.example` lists every variable with a comment explaining it. Three
+are worth spelling out:
 
 - `DATABASE_URL` is the **pooled** connection, used by the running app.
 - `DIRECT_URL` is the same connection **without** `-pooler` in the hostname. Prisma
@@ -128,11 +128,13 @@ npm run seed
 
 ### 3. Configure the frontend
 
-Create `frontend/.env.local`:
+```bash
+cd frontend
+cp .env.example .env.local
+```
 
-```
-NEXT_PUBLIC_API_URL=http://localhost:4000/api
-```
+The default points at the backend on port 4000, which is where step 2 leaves it,
+so there is usually nothing to change.
 
 ### 4. Run both servers
 
@@ -158,29 +160,16 @@ Open **http://localhost:3200**.
 
 ## Deploying
 
-Two projects from this one repository, both on Vercel's free plan, with the
-database staying on Neon. Vercel is what this is set up for because it asks for
-no payment card; `render.yaml` is also in the repository and works the same way
-if you would rather use Render, which does ask for one before it runs anything.
+The database stays on Neon. The two applications have different shapes and want
+different hosts.
 
-**The API.** New project, **Root Directory `backend`**, framework preset
-*Other*. `backend/vercel.json` rewrites every path to `api/index.ts`, which
-exports the same Express app `src/index.ts` listens with - so the routing,
-middleware and validation are the deployed code, not a second copy of it. Set:
+**The web app - Vercel.** New project, **Root Directory `frontend`**. Vercel
+detects Next.js on its own, so this half needs no configuration beyond two
+variables:
 
 | Variable | Value |
 |---|---|
-| `DATABASE_URL` | the pooled Neon string, the one with `-pooler` |
-| `DIRECT_URL` | the direct Neon string, without `-pooler` |
-| `JWT_SECRET` | a fresh random string |
-| `FRONTEND_URL` | the web project's URL, once it has one |
-
-**The web app.** New project, **Root Directory `frontend`**. Vercel detects
-Next.js on its own. Set:
-
-| Variable | Value |
-|---|---|
-| `BACKEND_ORIGIN` | the API project's URL, no trailing slash |
+| `BACKEND_ORIGIN` | the API's origin, no trailing slash |
 | `NEXT_PUBLIC_API_URL` | `/api` |
 
 That pair is what keeps this simple. `BACKEND_ORIGIN` turns on a rewrite in
@@ -189,16 +178,38 @@ path and Next forwards it to the API behind the scenes. The session cookie
 stays first-party, there is no cross-site request to configure, and a reviewer
 only needs one URL.
 
+**The API - anywhere that runs a container or a long-lived Node process.**
+`backend/Dockerfile` builds it: install, `prisma generate`, `tsc`, then
+`node dist/src/index.js` listening on `PORT`. `render.yaml` describes the same
+service as a Render Blueprint, for hosts that build from a buildpack rather than
+a Dockerfile. Either way it needs four values:
+
+| Variable | Value |
+|---|---|
+| `DATABASE_URL` | the pooled Neon string, the one with `-pooler` |
+| `DIRECT_URL` | the direct Neon string, without `-pooler` |
+| `JWT_SECRET` | a fresh random string |
+| `FRONTEND_URL` | the web app's origin, once it has one |
+
+**Not Vercel, for the API.** Vercel runs functions, not servers. This is an
+ordinary Express application with `app.listen`, a Prisma client and a connection
+pool, and it did not survive the translation: a deployment there answered
+`FUNCTION_INVOCATION_FAILED` even after being reduced to nothing but `express`,
+which ruled out Prisma, bundle size and this project's own imports. The frontend
+half is a natural fit and is deployed there; the API is not.
+
 Two things that will bite otherwise:
 
 - `NEXT_PUBLIC_*` is baked into the bundle at build time, so the web project has
   to be **redeployed** after those values change, not restarted.
-- The first request after a quiet spell pays a cold start while the function
-  wakes and Prisma reconnects. Open the app once before demonstrating it.
+- Free tiers idle out. The first request after a quiet spell pays a cold start
+  while the container wakes and Prisma reconnects. Open the app once before
+  demonstrating it.
 
-Locally nothing above applies: `BACKEND_ORIGIN` is unset, no rewrite is added,
-and the frontend calls `http://localhost:4000/api` through
-`NEXT_PUBLIC_API_URL` exactly as before.
+Locally none of this applies: `BACKEND_ORIGIN` is unset, no rewrite is added,
+and the frontend calls `http://localhost:4000/api` through `NEXT_PUBLIC_API_URL`
+exactly as before.
+
 
 ## Demo accounts
 
