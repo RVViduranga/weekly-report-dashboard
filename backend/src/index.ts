@@ -1,18 +1,12 @@
-import "dotenv/config";
-import { createApp } from "./app";
+// TEMPORARY probe - reverted in the next commit.
+// Nothing but express, so a 200 here means express bundles fine and the
+// failure is further down the import chain; a 500 means it does not.
+import express from "express";
 
-const app = createApp();
+const app = express();
 
-/**
- * Vercel imports this module and serves the exported app itself, so opening a
- * port there would be wrong. Everywhere else - locally, and on any host that
- * runs a long-lived process - the server has to listen on its own.
- */
-if (!process.env.VERCEL) {
-  const PORT = process.env.PORT || 4000;
-  app.listen(PORT, () => {
-    console.log(`Backend running on http://localhost:${PORT}`);
-  });
-}
+app.get("/api/health", (_req, res) => {
+  res.json({ status: "ok", probe: "express-only" });
+});
 
 export default app;
