@@ -369,9 +369,9 @@ export default function DashboardPage() {
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <Kpi
           icon={FileText}
-          label="Total reports"
-          value={totalReports}
-          hint={`Filed by ${summary.teamSize} team members`}
+          label="Filed this week"
+          value={summary.submittedThisWeek}
+          hint={`of ${summary.teamSize} team members · ${totalReports} reports in total`}
         />
         <Kpi
           icon={TrendingUp}
