@@ -1,12 +1,20 @@
-// TEMPORARY probe - reverted in the next commit.
-// Nothing but express, so a 200 here means express bundles fine and the
-// failure is further down the import chain; a 500 means it does not.
-import express from "express";
+import "dotenv/config";
+import { createApp } from "./app";
 
-const app = express();
+const app = createApp();
 
-app.get("/api/health", (_req, res) => {
-  res.json({ status: "ok", probe: "express-only" });
+/**
+ * Always listen. Vercel runs this as a Node web service and connects to the
+ * port it hands over in PORT, which is the same thing Render and a local
+ * `npm start` do - so there is nothing to special-case.
+ *
+ * The default export is there for hosts that import the app instead of
+ * starting it; it costs nothing and keeps both shapes available.
+ */
+const PORT = process.env.PORT || 4000;
+
+app.listen(PORT, () => {
+  console.log(`Backend running on http://localhost:${PORT}`);
 });
 
 export default app;
