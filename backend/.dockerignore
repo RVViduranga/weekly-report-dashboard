@@ -1,0 +1,7 @@
+# Keep secrets and host-built artefacts out of the image entirely.
+.env
+.env.*
+node_modules
+dist
+src/generated
+npm-debug.log
