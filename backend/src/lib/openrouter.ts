@@ -10,16 +10,24 @@ const ENDPOINT = "https://openrouter.ai/api/v1/chat/completions";
 const TIMEOUT_MS = 30_000;
 
 /**
- * Tried in order, and the reason there is more than one: a `:free` model runs
- * on a pool shared by every free user of that provider, so it answers 429
- * "rate-limited upstream" at busy moments even when this account has used
- * nothing at all. Different models sit behind different providers, so the
- * second is usually free when the first is not.
+ * Tried in order, and the reason there are six: a `:free` model runs on a pool
+ * shared by every free user of *that provider*, so it answers 429 "rate-limited
+ * upstream" at busy moments even when this account has used nothing at all.
+ * Two of these were busy while the other four answered, which is the whole
+ * argument for the list - so it deliberately spans six different providers
+ * rather than six models from one.
+ *
+ * Ordered by answer quality first and latency second. Each was checked against
+ * the same grounded question, and each named exactly the people the data said
+ * were blocked.
  */
 const DEFAULT_MODELS = [
   "google/gemma-4-31b-it:free",
+  "inclusionai/ling-3.0-flash-fin:free",
+  "liquid/lfm-2.5-2.6b:free",
+  "cohere/north-mini-code:free",
+  "dots-studio/dots-3-note-preview:free",
   "nvidia/nemotron-3-super-120b-a12b:free",
-  "google/gemma-4-26b-a4b-it:free",
 ];
 
 export type ChatMessage = {
